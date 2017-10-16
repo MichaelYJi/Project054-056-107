@@ -1,0 +1,55 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 10/13/17 9:32:12 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :Represent a negative integer with two's complement
+00000000                             3  * Written by :Dawit Abera
+00000000                             4  * Date       :Oct 12/2017
+00000000                             5  * Description:Two's complement 
+00000000                             6  *-----------------------------------------------------------
+00000000  =0000000D                  7  CR           EQU     $0D                  ASCII code for Carriage Return
+00000000  =0000000A                  8  LF           EQU     $0A                  ASCII code for Line Feed
+00000000  =0000FF9A                  9  FirstInput   EQU     $FF9A                -102 in HEX
+00000000  =0000FFA9                 10  SecondInput  EQU     $FFA9                -87 in HEX
+00000000  =00005000                 11  StoreResult  EQU     $5000                Address location for the result output
+00000000                            12  *-----------------------------------------------------------
+00000000                            13  
+00001000                            14  START:       ORG         $1000
+00001000  303C FF9A                 15  ADD         MOVE.W      #FirstInput,D0               Load D0 with first input
+00001004  0680 0000FFA9             16              ADDI.L      #SecondInput,D0              Load the second input 
+0000100A  307C 5000                 17              MOVEA.W     #StoreResult,A0              Load the address regi for the result
+0000100E  6900 0012                 18              BVS         ERROR                        Branch when overflow occurs
+00001012  3080                      19              MOVE.W      D0,(A0)                      Load D0 and D1 
+00001014  3210                      20              MOVE.W      (A0),D1                      Move the data from A0 to D1
+00001016                            21              
+00001016  103C 0003                 22              MOVE.B      #3,D0                        Show the value in D1    
+0000101A  4E4F                      23              TRAP        #15
+0000101C  103C 0009                 24              MOVE.B      #9,D0
+00001020  4E4F                      25              TRAP        #15
+00001022                            26              
+00001022                            27              
+00001022                            28              
+00001022  43F9 0000102E             29  ERROR       LEA          MESSAGE,A1                  Loads MESSAGE into address registor A1
+00001028  103C 000E                 30              MOVE.B       #14,D0
+0000102C  4E4F                      31              TRAP         #15
+0000102E                            32                   
+0000102E= 54 68 65 69 72 20 ...     33  MESSAGE     DC.B         'Their is an overflow',0    Display MESSAGE if overflow occoures              
+00001043                            34              END          START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ADD                 1000
+CR                  D
+ERROR               1022
+FIRSTINPUT          FF9A
+LF                  A
+MESSAGE             102E
+SECONDINPUT         FFA9
+START               1000
+STORERESULT         5000
