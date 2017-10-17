@@ -1,0 +1,9 @@
+Each group is required to make presentation slides to include:
+
+1. Flow chart of your program (detailed)
+
+2. List of I/O, opcode and EAs that have been completed
+
+3. List of the works that have not been completed
+
+4. Any problems that have encountered so far to share with other groups
