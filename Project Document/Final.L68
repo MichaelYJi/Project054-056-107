@@ -1,0 +1,83 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 11/11/17 12:16:06 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00001000                             7      ORG    $1000
+00001000                             8  START:          
+00001000                             9  
+00001000  43F9 0000105C             10      LEA filename, A1
+00001006  103C 0033                 11      MOVE.B #51, D0
+0000100A  4E4F                      12      TRAP #15
+0000100C                            13      
+0000100C  2403                      14      MOVE.L D3,D2
+0000100E  103C 0037                 15      MOVE.B #55,D0
+00001012  4E4F                      16      TRAP #15
+00001014                            17      
+00001014  43F9 00001066             18      LEA buffer,A1
+0000101A  343C 0050                 19      MOVE.W #datasize,D2
+0000101E  103C 0035                 20      MOVE.B #53,D0
+00001022  4E4F                      21      TRAP #15
+00001024  2849                      22      MOVEA.L A1,A4
+00001026  1E00                      23      MOVE.B D0,D7
+00001028                            24       
+00001028  BC7C 00F0                 25  loop1 CMP #$F0,D6
+0000102C  6700 000C                 26        BEQ done
+00001030  4EB9 000010B6             27        JSR convert
+00001036  1C19                      28        MOVE.B (A1)+,D6
+00001038  60EE                      29        BRA loop1
+0000103A                            30  
+0000103A  224C                      31  done MOVEA.L A4,A1
+0000103C  4241                      32      CLR D1
+0000103E                            33      
+0000103E  143C 0010                 34  loop2 MOVE.B #16,D2
+00001042  1219                      35      MOVE.B (A1)+,D1
+00001044  103C 000F                 36      MOVE.B #15,D0
+00001048  4E4F                      37      TRAP #15
+0000104A  1211                      38      MOVE.B (A1),D1
+0000104C  B27C 000D                 39      CMP #$0D,D1
+00001050  66EC                      40      BNE loop2
+00001052                            41          
+00001052  103C 0038                 42      MOVE.B #56, D0
+00001056  4E4F                      43      TRAP #15
+00001058                            44          
+00001058  FFFF FFFF                 45      SIMHALT
+0000105C                            46  
+0000105C                            47  * Put variables and constants here
+0000105C= 74 65 73 74 31 2E ...     48  filename dc.b 'test1.txt', 0
+00001066  =00000050                 49  datasize equ 80
+00001066                            50  buffer ds.b 80
+000010B6                            51  
+000010B6  1A11                      52  convert MOVE.B (A1),D5
+000010B8  BA7C 0040                 53         CMP #$40,D5
+000010BC  6E00 000C                 54         BGT let
+000010C0  0485 00000030             55         SUBI.L #$30,D5
+000010C6  6000 0008                 56         BRA exit
+000010CA  0485 00000037             57  let    SUBI.L #$37,D5
+000010D0  1285                      58  exit   MOVE.B D5,(A1)
+000010D2  4E75                      59         RTS
+000010D4                            60  
+000010D4                            61      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+BUFFER              1066
+CONVERT             10B6
+DATASIZE            50
+DONE                103A
+EXIT                10D0
+FILENAME            105C
+LET                 10CA
+LOOP1               1028
+LOOP2               103E
+START               1000
