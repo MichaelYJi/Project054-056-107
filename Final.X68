@@ -33,6 +33,7 @@ done CLR D3
     MOVE.B (A3)+,D3
     
 loop2
+    CLR D5
     JSR checkop
     CMP #$CC,D5 *CC represents invalid opcode
     BEQ clr
@@ -149,7 +150,7 @@ MOVE_B  CLR D5 *Crashes program if checks aren't in
         
         *Isolate and get source register
         MOVEA.W A3,A4
-        ADDQ #3,A4
+        ADDQ #2,A4
         MOVE.B (A4),D5
         MOVE.B #29,D7
         ASL.L D7,D5
@@ -158,7 +159,7 @@ MOVE_B  CLR D5 *Crashes program if checks aren't in
         
         *Isolate and get destination mode
         MOVEA.W A3,A4
-        ADDQ #1,A4
+        *ADDQ #1,A4
         MOVE.B (A4),D5
         ADDQ #1,A4
         MOVE.B (A4),D6
@@ -172,7 +173,7 @@ MOVE_B  CLR D5 *Crashes program if checks aren't in
         
         *Isolate and get destination register
         MOVEA.W A3,A4
-        ADDQ #1, A4
+        *ADDQ #1, A4
         MOVE.B (A4),D5
         ASR.B #$1,D5
         MOVE.B D5,dest
@@ -183,29 +184,31 @@ MOVE_B  CLR D5 *Crashes program if checks aren't in
         LEA pmove_b,A1
         MOVE.B #14,D0
         TRAP #15
-        MOVEA.W EA,A4
+        CLR D5
+        CLR D6
         MOVE.B (source),D5
         MOVE.B (sourcem),D6
-        JSR 0(A4,D6)
+        JSR EA
         LEA comma,A1
         MOVE.B #14,D0
+        TRAP #15
+        CLR D5
+        CLR D6
         MOVE.B (dest),D5
         MOVE.B (sourcem),D6
-        JSR 0(A4,D6)
+        JSR EA
         
         CLR D5
         MOVE.B #$CC,D5
         ADDQ #4,A3
+        MOVE.B (A3),D3
+        JSR newline
 mbexit  RTS
                 
-EA      JMP EA_000
-        JMP EA_001
-        JMP EA_010
-        JMP EA_011
-        JMP EA_100
-        JMP EA_101
-        JMP EA_110
-        JMP EA_111
+EA      CMP #$0,D6
+        BEQ EA_000
+        
+        RTS
 
 EA_000  LEA dregister,A1
         MOVE.B #14,D0
@@ -237,6 +240,7 @@ EA_110  NOP
 EA_111  NOP
         RTS        
     END    START        ; last line of source
+
 
 
 
