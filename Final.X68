@@ -75,6 +75,22 @@ comma dc.b ',',0
 dotb dc.b '.B ',0
 dotw dc.b '.W ',0
 dotl dc.b '.L ',0
+leftp dc.b '(',0
+rightp dc.b ')',0
+plus dc.b   '+',0
+minus dc.b '-',0
+
+pjsr    dc.b    'JSR ',0
+
+prts    dc.b    'RTS',0
+
+pas     dc.b    'AS',0
+pls     dc.b    'LS',0
+pro     dc.b    'RO',0
+pright  dc.b    'R',0
+pleft   dc.b    'L',0
+
+
 
 convert CMP #$FF,D3
        BEQ exit
@@ -415,9 +431,9 @@ EA_111  NOP
         RTS 
 
 IsolateRegisters
-        CLR D5
-        CLR D6
-        CLR D7
+        CLR D5  *holds extra stuff like $xxx or #realnumber
+        CLR D6  *holds 4 digit opcode
+        CLR D7  *holds shift amounts, but ultimately empty
         
         *Isolate and get source mode
         ADDQ #2,A4
@@ -462,6 +478,7 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
 
 
 
