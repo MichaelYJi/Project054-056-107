@@ -68,6 +68,14 @@ pnop dc.b 'NOP ',0
 padd dc.b 'ADD',0
 padda dc.b 'ADDA',0
 paddi dc.b 'ADDI',0
+prts dc.b 'RTS',0
+
+pas dc.b 'AS',0
+pls dc.b 'LS',0
+pro dc.b 'RO',0
+pright dc.b 'R',0
+pleft dc.b 'L',0
+space dc.b ' ',0
 
 dregister dc.b 'D',0
 aregister dc.b 'A',0
@@ -157,6 +165,9 @@ checkop MOVEA.W A3,A4
         CMP #$0D,D4
         BEQ ADD_
         
+        CMP #$E,D4      *1110
+        BEQ rl_shift
+        
         *First level jump table goes here
         RTS
         
@@ -168,7 +179,8 @@ code0100
         MOVE.B (A4),D4
         CMP #$01,D4
         BEQ NOP_   
-        
+        CMP #$5,D4
+        BEQ RTS_
         RTS
 
 ADDI_   JSR IsolateRegisters
@@ -492,6 +504,477 @@ n3NOP   MOVE.B (A4),D4
         JSR newline
 notNOP  RTS
 
+RTS_    MOVEA.W A3,A4
+        MOVE.B -(A4),D4
+
+        MOVE.B (A4)+,D4
+        CMP #$04,D4
+        BEQ r1RTS
+        BRA notRTS
+r1RTS   MOVE.B (A4)+,D4
+        CMP #$0E,D4
+        BEQ r2RTS
+        BRA notRTS
+r2RTS   MOVE.B (A4)+,D4
+        CMP #$07,D4
+        BEQ r3RTS
+        BRA notRTS
+r3RTS   MOVE.B (A4),D4
+        CMP #$05,D4
+        BNE notRTS
+
+        LEA prts,A1
+        MOVE.B #14,D0
+        TRAP #15
+        
+        MOVE.B #$CC,D5
+        ADDQ #4,A3
+        MOVE.B (A3),D3
+        JSR newline
+notRTS  RTS
+
+*===================================================================================
+
+rl_shift	*is it memory or register shift?
+	CLR.L D4
+	ADDQ #$1,A4	*gets digits 7->4 into D4
+	MOVE.B (A4),D4
+
+	LSR.L #2,D4	*isolates the 7->6 spot
+	CMP #$3,D4
+	BNE rl_shift_b	*branch to part b(register)if necessary
+
+*continue with memory shift
+
+	CLR.L D4
+	SUBQ #1,A4	*gets 11->8 number
+	MOVE.B (A4),D4
+
+	LSR.L #1,D4	*isolate 11->9
+	
+	CMP #$0,D4	*if 11->9 == 000, jump to print AS
+	BEQ print_as_a
+
+	CMP #$1,D4	*if 11->9 == 001, jump to print LS
+	BEQ print_ls_a
+
+	CMP #$2,D4	*if 11->9 == 011, bad op 
+	BEQ not_rl_shift 
+
+	CMP #$3,D4	*if 11->9 == 011. jump to print RO
+	BEQ print_ro_a
+
+	*could probably just BRA not_rl_shift
+
+	CMP #$4,D4	*if 11->9 == 011, bad op 
+	BEQ not_rl_shift
+
+	CMP #$5,D4	*if 11->9 == 100, bad op 
+	BEQ not_rl_shift 
+
+	CMP #$6,D4	*if 11->9 == 110, bad op 
+	BEQ not_rl_shift 
+
+	CMP #$7,D4	*if 11->9 == 111, bad op 
+	BEQ not_rl_shift
+
+	BRA not_rl_shift
+
+print_as_a
+	LEA pas,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_a1
+
+print_ls_a
+	LEA pls,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_a1
+
+print_ro_a
+	LEA pro,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_a1
+
+rl_shift_a1	*ea
+	CLR.L D4
+	MOVE.B (A4),D4	*gets 11->8 into D4
+	MOVE.B #31,D7
+	LSL.L D7,D4	*isolate 8
+	LSR.L D7,D4
+	
+	CMP #$0,D4	*if spot 8 == 0, print R
+	BEQ print_r_a
+
+	CMP #$1,D4	*if spot 8 == 1, print L
+	BEQ print_l_a
+
+	BRA not_rl_shift
+
+print_r_a
+	LEA pright,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_a2
+
+print_l_a
+	LEA pleft,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_a2
+
+rl_shift_a2	*register shift
+	CLR.L D4
+	SUBQ #$1,A4	*gets digits 7->4 into D4
+	MOVE.B (A4),D4
+
+    MOVE.B #30,D7
+	LSL.L D7,D4	*isolate 5->4
+	LSR.L D7,D4
+
+	LSL.L #1,D4	*prep to add 3 onto it
+	CLR.L D2
+	MOVE.L D4,D2	*store 5->4 on D2 to read
+
+	CLR.L D4
+	ADDQ #1,A4	*gets 3->0
+	MOVE.B (A4),D4
+	
+	LSR.L #3,D4	*isolate 3
+
+	ADD.L D4,D2	*add shifted spot 5->4 to spot 3, D2 = 5->3
+	CLR.L D4
+
+	MOVE.B (A4),D4	*load 3->0 on D4
+	MOVE.B #29,D7
+	LSL.L D7,D4	*isolate 2->0
+	LSR.L D7,D4
+	CLR.L D1	*load 2->0 into D1
+	MOVE.B D4,D1
+
+	LEA space,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	CMP #$2,D2	*if == 010, print (An)
+	BEQ print_pAnp_rl_a
+
+	CMP #$3,D2	*if == 011, print (An)+
+	BEQ print_pAnpplus_rl_a
+
+	CMP #$4,D2	*if == 100, print -(An)
+	BEQ print_minuspAnp_rl_a
+
+	CMP #$7,D2	*if == 111, print ea ********************need to find a way to read the digits after opcode
+	BEQ print_ea_rl_a
+	
+	BRA not_rl_shift
+
+print_pAnp_rl_a
+	LEA leftp,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	LEA aregister,A1
+	MOVE.B #14,D0
+	TRAP #15
+	
+	MOVE.B #3,D0
+	TRAP #15
+
+	LEA rightp,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	MOVE.B #$CC,D5
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	JSR newline
+
+print_pAnpplus_rl_a
+	LEA leftp,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	LEA aregister,A1
+	MOVE.B #14,D0
+	TRAP #15
+	
+	MOVE.B #3,D0
+	TRAP #15
+
+	LEA rightp,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	LEA plus,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	MOVE.B #$CC,D5
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	JSR newline
+
+print_minuspAnp_rl_a
+	LEA minus,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	LEA leftp,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	LEA aregister,A1
+	MOVE.B #14,D0
+	TRAP #15
+	
+	MOVE.B #3,D0
+	TRAP #15
+
+	LEA rightp,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	MOVE.B #$CC,D5
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	JSR newline
+	
+print_ea_rl_a ********************need to find a way to read the digits after opcode
+	CMP #$2,D1
+	BEQ not_rl_shift
+
+	CMP #$3,D1
+	BEQ not_rl_shift
+
+	CMP #$4,D1
+	BEQ not_rl_shift
+
+	CMP #$5,D1
+	BEQ not_rl_shift
+
+	CMP #$6,D1
+	BEQ not_rl_shift
+
+	CMP #$7,D1
+	BEQ not_rl_shift
+
+	LEA dollarsign,A1
+	MOVE.B #14,D0
+	TRAP #15
+
+	CLR.L D2
+	MOVE.B #16,D2
+	CLR.L D1
+	MOVE.L D5,D1	*print extra ea from D5
+	MOVE.B #15,D0
+	TRAP #15
+
+	MOVE.B #$CC,D5
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	JSR newline
+
+rl_shift_b
+	MOVE.B (A4),D4	*7->4 back into D4
+	MOVE.B #31,D7
+	LSL.L D7,D4	*isolates 4
+	LSR.L D7,D4
+	LSL.L #1,D4	*preps to get added
+	CLR.L D2
+	MOVE.B D4,D2	*stores 4 in D4
+
+	ADDQ #$1,A4	*gets digits 3->0 into D4
+	MOVE.B (A4),D4
+	LSR.L #3,D4	*isolate 3
+	
+	ADD.B D2,D4	*gets 4->3
+	
+	CMP #$0,D4
+	BEQ print_as_b
+
+	CMP #$1,D4
+	BEQ print_ls_b
+
+	CMP #$3,D4
+	BEQ print_ro_b
+
+	BRA not_rl_shift
+	
+print_as_b
+	LEA pas,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b1
+
+print_ls_b
+	LEA pls,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b1
+
+print_ro_b
+	LEA pro,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b1
+
+rl_shift_b1
+	SUBQ #1,A4
+	MOVE.B (A4),D4	*gets 11->8 into D4
+	MOVE.B #31,D7
+	LSL.L D7,D4	*isolate 8
+	LSR.L D7,D4
+
+	CMP #$0,D4	*if spot 8 == 0, print R
+	BEQ print_r_b
+
+	CMP #$1,D4	*if spot 8 == 1, print L
+	BEQ print_l_b
+
+	BRA not_rl_shift
+
+print_r_b
+	LEA pright,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b2
+
+print_l_b
+	LEA pleft,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b2
+
+rl_shift_b2
+	ADDQ #1,A4
+	MOVE.B (A4),D4	*gets 7->4 into D4
+	LSR.L #2,D4	*isolate 7->6
+
+	CMP #$0,D4
+	BEQ print_byte_rl_b
+
+	CMP #$1,D4
+	BEQ print_word_rl_b
+
+	CMP #$2,D4
+	BEQ print_long_rl_b
+	
+	BRA not_rl_shift
+
+print_byte_rl_b
+	LEA dotb,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b3
+
+print_word_rl_b
+	LEA dotw,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b3
+
+print_long_rl_b
+	LEA dotl,A1
+	MOVE.B #14,D0
+	TRAP #15
+	BRA rl_shift_b3
+
+rl_shift_b3
+	MOVE.B (A4),D4	*gets 7->4 into D4
+	LSR.L #1,D4	*isolate 5
+	MOVE.B #31,D7
+	LSL.L D7,D4
+	LSR.L D7,D4
+
+	CMP #$0,D4
+	BEQ print_number_rl_b
+
+	CMP #$1,D4
+	BEQ print_d_rl_b
+
+	BRA not_rl_shift
+
+print_number_rl_b
+	SUBQ #1,A4	*gets 11->8 into D4
+	MOVE.B (A4),D4
+
+	LSR.L #1,D4	*isolates 11->9
+	CLR.L D1
+	MOVE.L D4,D1
+	
+	LEA hashtag,A1	*print #
+	MOVE.B #14,D0
+
+	MOVE.B #3,D0	*print number in D1
+	TRAP #15
+
+	LEA dregister,A1	*print D
+	MOVE.B #14,D0
+	TRAP #15
+
+	ADDQ #2,A4	*get 3->0 into D4
+	MOVE.B (A4),D4
+
+	CLR.L D1
+	MOVE.B #29,D7
+	LSL.L D7,D4	*isolate 2->0
+	LSR.L D7,D4
+	MOVE.L D4,D1
+
+	MOVE.B #3,D0	*print number in D1, dregister
+	TRAP #15
+
+	MOVE.B #$CC,D5
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	JSR newline
+
+print_d_rl_b
+	SUBQ #1,A4	*gets 11->8 into D4
+	MOVE.B (A4),D4
+
+	LSR.L #1,D4	*isolates 11->9
+	CLR.L D1
+	MOVE.L D4,D1
+	
+	LEA dregister,A1	*print D
+	MOVE.B #14,D0
+
+	MOVE.B #3,D0	*print number in D1
+	TRAP #15
+
+	LEA comma,A1	*print ,
+	MOVE.B #14,D0
+
+	LEA dregister,A1	*print D
+	MOVE.B #14,D0
+	TRAP #15
+
+	ADDQ #2,A4	*get 3->0 into D4
+	MOVE.B (A4),D4
+
+	CLR.L D1
+	MOVE.B #29,D7
+	LSL.L D7,D4	*isolate 2->0
+	LSR.L D7,D4
+	MOVE.L D4,D1
+
+	MOVE.B #3,D0	*print number in D1, dregister
+	TRAP #15
+
+	MOVE.B #$CC,D5
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	JSR newline
+
+not_rl_shift
+	RTS
+*===================================================================================
+
 *Pre-conditions:    
 *D6 needs to contain addressing mode
 *D5 needs to contain EA/register number          
@@ -597,6 +1080,8 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
+
 
 
 
