@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 12/4/2017 10:18:46 PM
+Created On: 12/4/2017 10:57:09 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :
@@ -10,1247 +10,1558 @@ Created On: 12/4/2017 10:18:46 PM
 00000000                             6  *-----------------------------------------------------------
 00001000                             7      ORG    $1000
 00001000                             8  START:          
-00001000                             9  
-00001000  43F9 00001072             10      LEA filename,A1
+00001000                             9  start
+00001000  43F9 00001122             10      LEA filename,A1
 00001006  103C 0033                 11      MOVE.B #51,D0
 0000100A  4E4F                      12      TRAP #15
 0000100C                            13      
-0000100C  2403                      14      MOVE.L D3,D2
-0000100E  103C 0037                 15      MOVE.B #55,D0
-00001012  4E4F                      16      TRAP #15
-00001014                            17      
-00001014  43F9 0000107C             18      LEA buffer,A1
-0000101A  343C 07D0                 19      MOVE.W #datasize,D2
-0000101E  103C 0035                 20      MOVE.B #53,D0
-00001022  4E4F                      21      TRAP #15
-00001024  2649                      22      MOVEA.L A1,A3
-00001026  1E00                      23      MOVE.B D0,D7
-00001028                            24       
-00001028  1611                      25  loop1 MOVE.B (A1),D3
-0000102A  B67C 00FF                 26        CMP #$FF,D3
-0000102E  6700 000C                 27        BEQ done
-00001032  4EB9 000018D2             28        JSR convert
-00001038  5249                      29        ADDQ #1,A1
-0000103A  60EC                      30        BRA loop1
-0000103C                            31  
-0000103C  4243                      32  done CLR D3
-0000103E  161B                      33      MOVE.B (A3)+,D3
-00001040                            34      
-00001040                            35  loop2
-00001040  4245                      36      CLR D5
-00001042  4EB9 0000196A             37      JSR checkop
-00001048  BA7C 00CC                 38      CMP #$CC,D5 *CC represents invalid opcode
-0000104C  6700 000E                 39      BEQ clr
-00001050  4EB9 0000195E             40      JSR printdata 
-00001056  4EB9 00001938             41      JSR print
-0000105C  B67C 00DD                 42  clr CMP #$DD,D3 *DD represents new line
-00001060  6600 0006                 43      BNE continue
-00001064  161B                      44      MOVE.B (A3)+,D3
-00001066  60F4                      45      BRA clr
-00001068  B67C 00FF                 46  continue CMP #$FF,D3 *FF represents end of stream
-0000106C  66D2                      47      BNE loop2
-0000106E                            48          
-0000106E  FFFF FFFF                 49      SIMHALT
-00001072                            50  
-00001072                            51  * Put variables and constants here
-00001072= 74 65 73 74 31 2E ...     52  filename dc.b 'test1.txt', 0
-0000107C  =000007D0                 53  datasize equ 2000
-0000107C                            54  buffer ds.b 2000
-0000184C= 44 41 54 41 20 00         55  data dc.b 'DATA ',0
-00001852= 00                        56  source dc.b 0
-00001853= 00                        57  dest dc.b 0
-00001854= 00                        58  sourcem dc.b 0
-00001855= 00                        59  destm dc.b 0
-00001856                            60  
-00001856= 4D 4F 56 45 2E 42 ...     61  pmove_b dc.b 'MOVE.B ',0
-0000185E= 4D 4F 56 45 2E 57 ...     62  pmove_w dc.b 'MOVE.W ',0
-00001866= 4D 4F 56 45 2E 4C ...     63  pmove_l dc.b 'MOVE.L ',0
-0000186E= 4D 4F 56 45 41 2E ...     64  pmovea_w dc.b 'MOVEA.W ',0
-00001877= 4D 4F 56 45 41 2E ...     65  pmovea_l dc.b 'MOVEA.L ',0
-00001880= 4D 4F 56 45 51 20 00      66  pmoveq dc.b 'MOVEQ ',0
-00001887= 4E 4F 50 20 00            67  pnop dc.b 'NOP ',0
-0000188C= 41 44 44 00               68  padd dc.b 'ADD',0
-00001890= 41 44 44 41 00            69  padda dc.b 'ADDA',0
-00001895= 41 44 44 49 00            70  paddi dc.b 'ADDI',0
-0000189A= 52 54 53 00               71  prts dc.b 'RTS',0
-0000189E                            72  
-0000189E= 41 53 00                  73  pas dc.b 'AS',0
-000018A1= 4C 53 00                  74  pls dc.b 'LS',0
-000018A4= 52 4F 00                  75  pro dc.b 'RO',0
-000018A7= 52 00                     76  pright dc.b 'R',0
-000018A9= 4C 00                     77  pleft dc.b 'L',0
-000018AB= 20 00                     78  space dc.b ' ',0
-000018AD                            79  
-000018AD= 44 00                     80  dregister dc.b 'D',0
-000018AF= 41 00                     81  aregister dc.b 'A',0
-000018B1= 23 00                     82  hashtag dc.b '#',0
-000018B3= 24 00                     83  dollarsign dc.b '$',0
-000018B5= 2C 00                     84  comma dc.b ',',0
-000018B7= 2E 42 20 00               85  dotb dc.b '.B ',0
-000018BB= 2E 57 20 00               86  dotw dc.b '.W ',0
-000018BF= 2E 4C 20 00               87  dotl dc.b '.L ',0
-000018C3= 28 00                     88  leftp dc.b '(',0
-000018C5= 29 00                     89  rightp dc.b ')',0
-000018C7= 2B 00                     90  plus dc.b   '+',0
-000018C9= 2D 00                     91  minus dc.b '-',0
-000018CB                            92  
-000018CB= 65 72 72 6F 72 00         93  error dc.b 'error',0
-000018D1                            94  
-000018D2  B67C 00FF                 95  convert CMP #$FF,D3
-000018D6  6700 0046                 96         BEQ exit
-000018DA  B67C 0030                 97         CMP #$30,D3
-000018DE  6D00 001E                 98         BLT fake
-000018E2  B67C 0046                 99         CMP #$46,D3
-000018E6  6E00 0016                100         BGT fake
-000018EA  B67C 0039                101         CMP #$39,D3
-000018EE  6F00 0016                102         BLE not
-000018F2  B67C 0041                103         CMP #$41,D3
-000018F6  6C00 000E                104         BGE not
-000018FA  6000 0002                105         BRA fake
-000018FE  163C 00DD                106  fake   MOVE.B #$DD,D3
-00001902  6000 001A                107         BRA exit
-00001906  B67C 0040                108  not    CMP #$40,D3
-0000190A  6E00 000C                109         BGT let
-0000190E  0483 00000030            110         SUBI.L #$30,D3
-00001914  6000 0008                111         BRA exit
-00001918  0483 00000037            112  let    SUBI.L #$37,D3
-0000191E  1283                     113  exit   MOVE.B D3,(A1)
-00001920  4E75                     114         RTS
-00001922                           115         
-00001922  323C 000D                116  newline MOVE #$0D,D1
-00001926  303C 0006                117          MOVE #6,D0
-0000192A  4E4F                     118          TRAP #15
-0000192C  323C 000A                119          MOVE #$0A,D1
-00001930  303C 0006                120          MOVE #6,D0
-00001934  4E4F                     121          TRAP #15
-00001936  4E75                     122          RTS
-00001938                           123  
-00001938                           124  print        
-00001938  B67C 00DD                125  loop    CMP #$DD,D3
-0000193C  6700 001A                126          BEQ done1
-00001940  B67C 00FF                127          CMP #$FF,D3
-00001944  6700 0016                128          BEQ done2
-00001948  1203                     129          MOVE.B D3,D1
-0000194A  143C 0010                130          MOVE.B #16,D2
-0000194E  103C 000F                131          MOVE.B #15,D0
-00001952  4E4F                     132          TRAP #15
-00001954  161B                     133          MOVE.B (A3)+,D3
-00001956  60E0                     134          BRA loop
-00001958  4EB8 1922                135  done1   JSR newline
-0000195C  4E75                     136  done2   RTS
-0000195E                           137  
-0000195E                           138          
-0000195E  43F8 184C                139  printdata LEA data,A1
-00001962  103C 000E                140          MOVE.B #14,D0
-00001966  4E4F                     141          TRAP #15
-00001968  4E75                     142          RTS 
-0000196A                           143          
-0000196A  384B                     144  checkop MOVEA.W A3,A4
-0000196C                           145  
-0000196C  1824                     146          MOVE.B -(A4),D4
-0000196E                           147          
-0000196E  B87C 0000                148          CMP #$00,D4     *0000
-00001972  6700 0054                149          BEQ ADDI_
-00001976                           150          
-00001976  B87C 0001                151          CMP #$01,D4     *0001
-0000197A  6700 00FA                152          BEQ MOVE_B
-0000197E                           153          
-0000197E  B87C 0002                154          CMP #$02,D4     *0010
-00001982  6700 01AC                155          BEQ MOVE_L
-00001986                           156          
-00001986  B87C 0003                157          CMP #$03,D4     *0011
-0000198A  6700 0140                158          BEQ MOVE_W
-0000198E                           159          
-0000198E  B87C 0004                160          CMP #$04,D4     *0100
-00001992  6700 001C                161          BEQ code0100
-00001996                           162          
-00001996  B87C 0007                163          CMP #$07,D4     *0111
-0000199A  6700 01F8                164          BEQ MOVEQ_
-0000199E                           165          
-0000199E  B87C 000D                166          CMP #$0D,D4     *1101
-000019A2  6700 0278                167          BEQ ADD_
-000019A6                           168          
-000019A6  B87C 000E                169          CMP #$0E,D4     *1110
-000019AA  6700 0420                170          BEQ rl_check
-000019AE                           171          
-000019AE                           172          *First level jump table goes here
-000019AE  4E75                     173          RTS
-000019B0                           174          
-000019B0                           175  code0100 
-000019B0                           176  
-000019B0                           177          *NOP check
-000019B0  384B                     178          MOVEA.W A3,A4
-000019B2  544C                     179          ADDQ #2,A4
-000019B4  1814                     180          MOVE.B (A4),D4
-000019B6  B87C 0001                181          CMP #$01,D4
-000019BA  6700 0370                182          BEQ NOP_   
-000019BE  B87C 0005                183          CMP #$5,D4
-000019C2  6700 03B8                184          BEQ RTS_
-000019C6  4E75                     185          RTS
-000019C8                           186  
-000019C8  4EB9 00002344            187  ADDI_   JSR IsolateRegisters
-000019CE                           188          
-000019CE                           189          *Isolate size
-000019CE  384B                     190          MOVEA.W A3,A4
-000019D0                           191          *ADDQ #1,A4
-000019D0  1A1C                     192          MOVE.B (A4)+,D5
-000019D2  BA7C 0006                193          CMP #$6,D5
-000019D6  6600 009C                194          BNE addiexit
-000019DA  1A14                     195          MOVE.B (A4),D5
-000019DC  1E3C 001C                196          MOVE.B #28,D7
-000019E0  EFAD                     197          LSL.L D7,D5
-000019E2  5447                     198          ADDQ #2,D7
-000019E4  EEAD                     199          LSR.L D7,D5
-000019E6                           200          
-000019E6                           201          *Check size
-000019E6  BA7C 0000                202          CMP #$0,D5
-000019EA  6600 000E                203          BNE addin1
-000019EE  4BF8 18B7                204          LEA dotb,A5
-000019F2  183C 0002                205          MOVE.B #2,D4
-000019F6  6000 0026                206          BRA prnaddi
-000019FA  BA7C 0001                207  addin1  CMP #$1,D5
-000019FE  6600 000E                208          BNE addin2
-00001A02  4BF8 18BB                209          LEA dotw,A5
-00001A06  183C 0004                210          MOVE.B #4,D4
-00001A0A  6000 0012                211          BRA prnaddi
-00001A0E  BA7C 0002                212  addin2  CMP #$2,D5
-00001A12  6600 0060                213          BNE addiexit
-00001A16  4BF8 18BF                214          LEA dotl,A5
-00001A1A  183C 0008                215          MOVE.B #8,D4
-00001A1E                           216          
-00001A1E                           217          *Print
-00001A1E  43F8 1895                218  prnaddi LEA paddi,A1
-00001A22  103C 000E                219          MOVE.B #14,D0
-00001A26  4E4F                     220          TRAP #15
-00001A28  43D5                     221          LEA (A5),A1
-00001A2A  4E4F                     222          TRAP #15
-00001A2C  43F8 18B1                223          LEA hashtag,A1
-00001A30  4E4F                     224          TRAP #15
-00001A32  43F8 18B3                225          LEA dollarsign,A1
-00001A36  4E4F                     226          TRAP #15
-00001A38  544C                     227          ADDQ #2,A4
-00001A3A  4245                     228          CLR D5
-00001A3C  143C 0010                229          MOVE.B #16,D2
-00001A40  103C 000F                230          MOVE.B #15,D0
-00001A44  5245                     231  addilp  ADDQ #1,D5
-00001A46  121C                     232          MOVE.B (A4)+,D1
-00001A48  4E4F                     233          TRAP #15
-00001A4A  BA44                     234          CMP D4,D5
-00001A4C  66F6                     235          BNE addilp
-00001A4E  43F8 18B5                236          LEA comma,A1
-00001A52  103C 000E                237          MOVE.B #14,D0
-00001A56  4E4F                     238          TRAP #15
-00001A58  1A38 1852                239          MOVE.B (source),D5
-00001A5C  1C38 1854                240          MOVE.B (sourcem),D6
-00001A60  4EB9 000022C6            241          JSR EA
-00001A66                           242  
-00001A66  1A3C 00CC                243          MOVE.B #$CC,D5
-00001A6A  584B                     244          ADDQ #4,A3
-00001A6C  D7C4                     245          ADDA.L D4,A3
-00001A6E  1613                     246          MOVE.B (A3),D3
-00001A70  4EB8 1922                247          JSR newline
-00001A74  4E75                     248  addiexit RTS
-00001A76                           249          
-00001A76  4EB9 00002344            250  MOVE_B  JSR IsolateRegisters
-00001A7C                           251                  
-00001A7C                           252          *Check valid opcode
-00001A7C  1E3C 0001                253          MOVE.B #$1,D7    
-00001A80  1C38 1855                254          MOVE.B (destm),D6
-00001A84  BE46                     255          CMP D6,D7
-00001A86  6700 0042                256          BEQ mbexit
-00001A8A                           257          
-00001A8A                           258          *Print
-00001A8A  43F8 1856                259          LEA pmove_b,A1
-00001A8E  103C 000E                260          MOVE.B #14,D0
-00001A92  4E4F                     261          TRAP #15
-00001A94  4245                     262          CLR D5
-00001A96  4246                     263          CLR D6
-00001A98  1A38 1852                264          MOVE.B (source),D5
-00001A9C  1C38 1854                265          MOVE.B (sourcem),D6
-00001AA0  4EB9 000022C6            266          JSR EA
-00001AA6  43F8 18B5                267          LEA comma,A1
-00001AAA  103C 000E                268          MOVE.B #14,D0
-00001AAE  4E4F                     269          TRAP #15
-00001AB0  1A38 1853                270          MOVE.B (dest),D5
-00001AB4  1C38 1855                271          MOVE.B (destm),D6
-00001AB8  4EB9 000022C6            272          JSR EA
-00001ABE                           273          
-00001ABE  1A3C 00CC                274          MOVE.B #$CC,D5
-00001AC2  584B                     275          ADDQ #4,A3
-00001AC4  1613                     276          MOVE.B (A3),D3
-00001AC6  4EB8 1922                277          JSR newline
-00001ACA  4E75                     278  mbexit  RTS
-00001ACC                           279  
-00001ACC  4EB9 00002344            280  MOVE_W  JSR IsolateRegisters
-00001AD2                           281          
-00001AD2                           282          *Check movea or move
-00001AD2  1E3C 0001                283          MOVE.B #$1,D7
-00001AD6  1C38 1855                284          MOVE.B (destm),D6
-00001ADA  BE46                     285          CMP D6,D7
-00001ADC  6600 0010                286          BNE printnaw
-00001AE0  43F8 186E                287          LEA pmovea_w,A1
-00001AE4  103C 000E                288          MOVE.B #14,D0
-00001AE8  4E4F                     289          TRAP #15
-00001AEA  6000 000C                290          BRA printmw
-00001AEE                           291          
-00001AEE                           292          *Print
-00001AEE  43F8 185E                293  printnaw LEA pmove_w,A1
-00001AF2  103C 000E                294          MOVE.B #14,D0
-00001AF6  4E4F                     295          TRAP #15
-00001AF8  4245                     296  printmw CLR D5
-00001AFA  4246                     297          CLR D6
-00001AFC  1A38 1852                298          MOVE.B (source),D5
-00001B00  1C38 1854                299          MOVE.B (sourcem),D6
-00001B04  4EB9 000022C6            300          JSR EA
-00001B0A  43F8 18B5                301          LEA comma,A1
-00001B0E  103C 000E                302          MOVE.B #14,D0
-00001B12  4E4F                     303          TRAP #15
-00001B14  1A38 1853                304          MOVE.B (dest),D5
-00001B18  1C38 1855                305          MOVE.B (destm),D6
-00001B1C  4EB9 000022C6            306          JSR EA
-00001B22                           307          
-00001B22  1A3C 00CC                308          MOVE.B #$CC,D5
-00001B26  584B                     309          ADDQ #4,A3
-00001B28  1613                     310          MOVE.B (A3),D3
-00001B2A  4EB8 1922                311          JSR newline
-00001B2E  4E75                     312  mwexit  RTS
-00001B30                           313  
-00001B30  4EB9 00002344            314  MOVE_L  JSR IsolateRegisters 
-00001B36                           315          
-00001B36                           316          *Check movea or move
-00001B36  1E3C 0001                317          MOVE.B #$1,D7
-00001B3A  1C38 1855                318          MOVE.B (destm),D6
-00001B3E  BE46                     319          CMP D6,D7
-00001B40  6600 0010                320          BNE printnal
-00001B44  43F8 1877                321          LEA pmovea_l,A1
-00001B48  103C 000E                322          MOVE.B #14,D0
-00001B4C  4E4F                     323          TRAP #15
-00001B4E  6000 000C                324          BRA printml
-00001B52                           325          
-00001B52                           326          *Print
-00001B52  43F8 1866                327  printnal LEA pmove_l,A1
-00001B56  103C 000E                328          MOVE.B #14,D0
-00001B5A  4E4F                     329          TRAP #15
-00001B5C  4245                     330  printml CLR D5
-00001B5E  4246                     331          CLR D6
-00001B60  1A38 1852                332          MOVE.B (source),D5
-00001B64  1C38 1854                333          MOVE.B (sourcem),D6
-00001B68  4EB9 000022C6            334          JSR EA
-00001B6E  43F8 18B5                335          LEA comma,A1
-00001B72  103C 000E                336          MOVE.B #14,D0
-00001B76  4E4F                     337          TRAP #15
-00001B78  1A38 1853                338          MOVE.B (dest),D5
-00001B7C  1C38 1855                339          MOVE.B (destm),D6
-00001B80  4EB9 000022C6            340          JSR EA
-00001B86                           341          
-00001B86  1A3C 00CC                342          MOVE.B #$CC,D5
-00001B8A  584B                     343          ADDQ #4,A3
-00001B8C  1613                     344          MOVE.B (A3),D3
-00001B8E  4EB8 1922                345          JSR newline
-00001B92  4E75                     346  mlexit  RTS
-00001B94                           347  
-00001B94  4245                     348  MOVEQ_  CLR D5
-00001B96  4246                     349          CLR D6
-00001B98  4247                     350          CLR D7
-00001B9A                           351  
-00001B9A                           352          *Check 8th bit for 0
-00001B9A  524C                     353          ADDQ #1,A4
-00001B9C  1A14                     354          MOVE.B (A4),D5
-00001B9E  7E20                     355          MOVE.L #32,D7
-00001BA0  EFA5                     356          ASL.L D7,D5
-00001BA2  EEA5                     357          ASR.L D7,D5
-00001BA4  BA7C 0001                358          CMP #$1,D5
-00001BA8  6700 0070                359          BEQ mqexit
-00001BAC                           360          
-00001BAC                           361          *Get data register
-00001BAC  1A1C                     362          MOVE.B (A4)+,D5
-00001BAE  1E3C 001C                363          MOVE.B #28,D7
-00001BB2  EFAD                     364          LSL.L D7,D5
-00001BB4  5247                     365          ADDQ #1,D7
-00001BB6  EEAD                     366          LSR.L D7,D5
-00001BB8  11C5 1853                367          MOVE.B D5,dest
-00001BBC                           368          
-00001BBC                           369          *Get and print value
-00001BBC  43F8 1880                370          LEA pmoveq,A1
-00001BC0  103C 000E                371          MOVE.B #14,D0
-00001BC4  4E4F                     372          TRAP #15
-00001BC6  43F8 18B1                373          LEA hashtag,A1
-00001BCA  4E4F                     374          TRAP #15
-00001BCC  43F8 18B3                375          LEA dollarsign,A1
-00001BD0  4E4F                     376          TRAP #15
-00001BD2  121C                     377          MOVE.B (A4)+,D1
-00001BD4  B27C 0000                378          CMP #$0,D1
-00001BD8  6700 000C                379          BEQ mqpnext
-00001BDC  143C 0010                380          MOVE.B #16,D2
-00001BE0  103C 000F                381          MOVE.B #15,D0
-00001BE4  4E4F                     382          TRAP #15
-00001BE6  1214                     383  mqpnext MOVE.B (A4),D1
-00001BE8  143C 0010                384          MOVE.B #16,D2
-00001BEC  103C 000F                385          MOVE.B #15,D0
-00001BF0  4E4F                     386          TRAP #15
-00001BF2  43F8 18B5                387          LEA comma,A1
-00001BF6  103C 000E                388          MOVE.B #14,D0
-00001BFA  4E4F                     389          TRAP #15
-00001BFC                           390          *Print data register
-00001BFC  4245                     391          CLR D5
-00001BFE  1C3C 0000                392          MOVE.B #$0,D6
-00001C02  1A38 1853                393          MOVE.B (dest),D5
-00001C06  4EB9 000022C6            394          JSR EA
-00001C0C                           395          
-00001C0C  4245                     396          CLR D5
-00001C0E  1A3C 00CC                397          MOVE.B #$CC,D5
-00001C12  584B                     398          ADDQ #4,A3
-00001C14  1613                     399          MOVE.B (A3),D3
-00001C16  4EB8 1922                400          JSR newline
-00001C1A  4E75                     401  mqexit  RTS
-00001C1C                           402  
-00001C1C  4EB9 00002344            403  ADD_    JSR IsolateRegisters
-00001C22  1A38 1855                404          MOVE.B (destm),D5
-00001C26                           405          
-00001C26                           406          *EA + Dn to Dn
-00001C26  BA7C 0000                407          CMP #$0,D5
-00001C2A  6600 001C                408          BNE addn1
-00001C2E  1C38 1854                409          MOVE.B (sourcem),D6
-00001C32  BC7C 0001                410          CMP #$1,D6
-00001C36  6700 00F2                411          BEQ addexit
-00001C3A  4BF8 18B7                412          LEA dotb,A5
-00001C3E  11FC 0000 1855           413          MOVE.B #$0,destm
-00001C44  6000 009C                414          BRA printadd
-00001C48  BA7C 0001                415  addn1   CMP #$1,D5
-00001C4C  6600 0010                416          BNE addn2
-00001C50  4BF8 18BB                417          LEA dotw,A5
-00001C54  11FC 0000 1855           418          MOVE.B #$0,destm
-00001C5A  6000 0086                419          BRA printadd
-00001C5E  BA7C 0002                420  addn2   CMP #$2,D5
-00001C62  6600 0010                421          BNE addn3
-00001C66  4BF8 18BF                422          LEA dotl,A5
-00001C6A  11FC 0000 1855           423          MOVE.B #$0,destm
-00001C70  6000 0070                424          BRA printadd
-00001C74                           425          
-00001C74                           426          *Dn + EA to EA
-00001C74  BA7C 0004                427  addn3   CMP #$4,D5
-00001C78  6600 0010                428          BNE addn4
-00001C7C  4BF8 18B7                429          LEA dotb,A5
-00001C80  11FC 0000 1855           430          MOVE.B #$0,destm
-00001C86  6000 005A                431          BRA printadd
-00001C8A  BA7C 0005                432  addn4   CMP #$5,D5
-00001C8E  6600 0010                433          BNE addn5
-00001C92  4BF8 18BB                434          LEA dotw,A5
-00001C96  11FC 0000 1855           435          MOVE.B #$0,destm
-00001C9C  6000 0044                436          BRA printadd
-00001CA0  BA7C 0006                437  addn5   CMP #$6,D5
-00001CA4  6600 0010                438          BNE addn6
-00001CA8  4BF8 18BF                439          LEA dotl,A5
-00001CAC  11FC 0000 1855           440          MOVE.B #$0,destm
-00001CB2  6000 002E                441          BRA printadd
-00001CB6                           442          
-00001CB6                           443          *ADDA
-00001CB6  BA7C 0003                444  addn6   CMP #$3,D5
-00001CBA  6600 0010                445          BNE addn7
-00001CBE  4BF8 18BB                446          LEA dotw,A5
-00001CC2  11FC 0001 1855           447          MOVE.B #$1,destm
-00001CC8  6000 0010                448          BRA printadda
-00001CCC  4BF8 18BF                449  addn7   LEA dotl,A5
-00001CD0  11FC 0001 1855           450          MOVE.B #$1,destm
-00001CD6  6000 0002                451          BRA printadda
-00001CDA                           452          
-00001CDA  43F8 1890                453  printadda LEA padda,A1
-00001CDE  6000 0006                454          BRA addrest
-00001CE2  43F8 188C                455  printadd LEA padd,A1
-00001CE6  103C 000E                456  addrest MOVE.B #14,D0
-00001CEA  4E4F                     457          TRAP #15
-00001CEC  43D5                     458          LEA (A5),A1
-00001CEE  103C 000E                459          MOVE.B #14,D0
-00001CF2  4E4F                     460          TRAP #15
-00001CF4  4245                     461          CLR D5
-00001CF6  4246                     462          CLR D6
-00001CF8  1A38 1852                463          MOVE.B (source),D5
-00001CFC  1C38 1854                464          MOVE.B (sourcem),D6
-00001D00  4EB9 000022C6            465          JSR EA
-00001D06  43F8 18B5                466          LEA comma,A1
-00001D0A  103C 000E                467          MOVE.B #14,D0
-00001D0E  4E4F                     468          TRAP #15
-00001D10  1A38 1853                469          MOVE.B (dest),D5
-00001D14  1C38 1855                470          MOVE.B (destm),D6
-00001D18  4EB9 000022C6            471          JSR EA
-00001D1E                           472  
-00001D1E  1A3C 00CC                473          MOVE.B #$CC,D5
-00001D22  584B                     474          ADDQ #4,A3
-00001D24  1613                     475          MOVE.B (A3),D3
-00001D26  4EB8 1922                476          JSR newline
-00001D2A  4E75                     477  addexit RTS
-00001D2C                           478  
-00001D2C  384B                     479  NOP_    MOVEA.W A3,A4
-00001D2E  1824                     480          MOVE.B -(A4),D4
-00001D30                           481  
-00001D30  181C                     482          MOVE.B (A4)+,D4
-00001D32  B87C 0004                483          CMP #$04,D4
-00001D36  6700 0006                484          BEQ n1NOP
-00001D3A  6000 003E                485          BRA notNOP
-00001D3E  181C                     486  n1NOP   MOVE.B (A4)+,D4
-00001D40  B87C 000E                487          CMP #$0E,D4
-00001D44  6700 0006                488          BEQ n2NOP
-00001D48  6000 0030                489          BRA notNOP
-00001D4C  181C                     490  n2NOP   MOVE.B (A4)+,D4
-00001D4E  B87C 0007                491          CMP #$07,D4
-00001D52  6700 0006                492          BEQ n3NOP
-00001D56  6000 0022                493          BRA notNOP
-00001D5A  1814                     494  n3NOP   MOVE.B (A4),D4
-00001D5C  B87C 0001                495          CMP #$01,D4
-00001D60  6600 0018                496          BNE notNOP
-00001D64                           497  
-00001D64  43F8 1887                498          LEA pnop,A1
-00001D68  103C 000E                499          MOVE.B #14,D0
-00001D6C  4E4F                     500          TRAP #15
-00001D6E                           501          
-00001D6E  1A3C 00CC                502          MOVE.B #$CC,D5
-00001D72  584B                     503          ADDQ #4,A3
-00001D74  1613                     504          MOVE.B (A3),D3
-00001D76  4EB8 1922                505          JSR newline
-00001D7A  4E75                     506  notNOP  RTS
-00001D7C                           507  
-00001D7C  384B                     508  RTS_    MOVEA.W A3,A4
-00001D7E  1824                     509          MOVE.B -(A4),D4
-00001D80                           510  
-00001D80  181C                     511          MOVE.B (A4)+,D4
-00001D82  B87C 0004                512          CMP #$04,D4
-00001D86  6700 0006                513          BEQ r1RTS
-00001D8A  6000 003E                514          BRA notRTS
-00001D8E  181C                     515  r1RTS   MOVE.B (A4)+,D4
-00001D90  B87C 000E                516          CMP #$0E,D4
-00001D94  6700 0006                517          BEQ r2RTS
-00001D98  6000 0030                518          BRA notRTS
-00001D9C  181C                     519  r2RTS   MOVE.B (A4)+,D4
-00001D9E  B87C 0007                520          CMP #$07,D4
-00001DA2  6700 0006                521          BEQ r3RTS
-00001DA6  6000 0022                522          BRA notRTS
-00001DAA  1814                     523  r3RTS   MOVE.B (A4),D4
-00001DAC  B87C 0005                524          CMP #$05,D4
-00001DB0  6600 0018                525          BNE notRTS
-00001DB4                           526  
-00001DB4  43F8 189A                527          LEA prts,A1
-00001DB8  103C 000E                528          MOVE.B #14,D0
-00001DBC  4E4F                     529          TRAP #15
-00001DBE                           530          
-00001DBE  1A3C 00CC                531          MOVE.B #$CC,D5
-00001DC2  584B                     532          ADDQ #4,A3
-00001DC4  1613                     533          MOVE.B (A3),D3
-00001DC6  4EB8 1922                534          JSR newline
-00001DCA  4E75                     535  notRTS  RTS
-00001DCC                           536  
-00001DCC                           537  *============================ASL, ASR, LSL, LSR, ROL, ROR================================
-00001DCC                           538  
-00001DCC                           539  rl_check    *for registers
-00001DCC  4284                     540      CLR.L D4
-00001DCE  544C                     541      ADDQ #$2,A4 *gets digits 7->4 into D4
-00001DD0  1814                     542      MOVE.B (A4),D4
-00001DD2                           543      
-00001DD2  E48C                     544      LSR.L #2,D4 *isolates the 7->6 spot, if it == 11 branch
-00001DD4  B87C 0003                545      CMP #$3,D4
-00001DD8  6700 0028                546      BEQ rl_check2   *branch to check2 for ea
-00001DDC                           547      
-00001DDC  4284                     548      CLR.L D4
-00001DDE  1814                     549      MOVE.B (A4),D4  *7->4 back into D4
-00001DE0  1E3C 001F                550      MOVE.B #31,D7
-00001DE4  EFAC                     551      LSL.L D7,D4 *isolates 4
-00001DE6  EEAC                     552      LSR.L D7,D4
-00001DE8  E38C                     553      LSL.L #1,D4 *preps to get added
-00001DEA  4282                     554      CLR.L D2
-00001DEC  1404                     555      MOVE.B D4,D2    *stores 4 in D4
-00001DEE                           556  
-00001DEE  524C                     557      ADDQ #$1,A4 *SHIFT gets digits 3->0 into D4
-00001DF0  1814                     558      MOVE.B (A4),D4
-00001DF2  E68C                     559      LSR.L #3,D4 *isolate 3
-00001DF4                           560      
-00001DF4  D802                     561      ADD.B D2,D4 *gets 4->3 in D4
-00001DF6                           562      
-00001DF6  B87C 0002                563      CMP #$2,D4  *if 4->3 == 2, bad
-00001DFA  6700 04C8                564      BEQ not_rl_shift 
-00001DFE                           565      
-00001DFE  6000 00C2                566      BRA rl_shift
-00001E02                           567      
-00001E02                           568  rl_check2   *ea check
-00001E02  4284                     569      CLR.L D4
-00001E04  534C                     570      SUBQ #1,A4  *shift 11->8
-00001E06  1814                     571      MOVE.B (A4),D4  *get 11->8
-00001E08                           572      
-00001E08  E28C                     573      LSR.L #1,D4 *shift right to isolate 11->9
-00001E0A                           574      
-00001E0A  B87C 0002                575      CMP #$2,D4  *cant be 010
-00001E0E  6700 04B4                576      BEQ not_rl_shift
-00001E12                           577      
-00001E12  B87C 0004                578      CMP #$4,D4  cant be 100
-00001E16  6700 04AC                579      BEQ not_rl_shift
-00001E1A                           580      
-00001E1A  B87C 0005                581      CMP #$5,D4
-00001E1E  6700 04A4                582      BEQ not_rl_shift 
-00001E22                           583      
-00001E22  B87C 0006                584      CMP #$6,D4
-00001E26  6700 049C                585      BEQ not_rl_shift 
-00001E2A                           586      
-00001E2A  B87C 0007                587      CMP #$7,D4
-00001E2E  6700 0494                588      BEQ not_rl_shift
-00001E32                           589      
-00001E32  4284                     590      CLR.L D4
-00001E34  524C                     591      ADDQ #$1,A4 *gets digits 7->4 into D4
-00001E36  1814                     592      MOVE.B (A4),D4
-00001E38                           593  
-00001E38  1E3C 001E                594      MOVE.B #30,D7
-00001E3C  EFAC                     595      LSL.L D7,D4 *isolate 5->4
-00001E3E  EEAC                     596      LSR.L D7,D4
-00001E40                           597  
-00001E40  E38C                     598      LSL.L #1,D4 *prep to add 3 onto it
-00001E42  4282                     599      CLR.L D2
-00001E44  2404                     600      MOVE.L D4,D2    *store 5->4 on D2 to read
-00001E46                           601  
-00001E46  4284                     602      CLR.L D4
-00001E48  524C                     603      ADDQ #1,A4  *gets 3->0
-00001E4A  1814                     604      MOVE.B (A4),D4
-00001E4C                           605      
-00001E4C  E68C                     606      LSR.L #3,D4 *isolate 3
-00001E4E                           607  
-00001E4E  D484                     608      ADD.L D4,D2 *add shifted spot 5->4 to spot 3, D2 = 5->3
-00001E50                           609      
-00001E50  B47C 0000                610      CMP #$0,D2
-00001E54  6700 046E                611      BEQ not_rl_shift
-00001E58                           612      
-00001E58  B47C 0001                613      CMP #$1,D2
-00001E5C  6700 0466                614      BEQ not_rl_shift
-00001E60                           615      
-00001E60  B47C 0005                616      CMP #$5,D2
-00001E64  6700 045E                617      BEQ not_rl_shift
-00001E68                           618      
-00001E68  B47C 0006                619      CMP #$6,D2
-00001E6C  6700 0456                620      BEQ not_rl_shift
-00001E70                           621      
-00001E70  B47C 0002                622      CMP #$2,D2
-00001E74  6700 004C                623      BEQ rl_shift
-00001E78                           624      
-00001E78  B47C 0003                625      CMP #$3,D2
-00001E7C  6700 0044                626      BEQ rl_shift
-00001E80                           627      
-00001E80  B47C 0004                628      CMP #$4,D2
-00001E84  6700 003C                629      BEQ rl_shift
-00001E88                           630      
-00001E88                           631      *D4 equals 111 CONTINUE
-00001E88                           632      
-00001E88  4284                     633      CLR.L D4
-00001E8A  524C                     634      ADDQ #1,A4  * spot -1 first bit after 3->0
-00001E8C  1814                     635      MOVE.B (A4),D4
-00001E8E  B87C 00FF                636      CMP #$FF,D4
-00001E92  6700 0430                637      BEQ not_rl_shift
-00001E96  B87C 00DD                638      CMP #$DD,D4
-00001E9A  6700 0428                639      BEQ not_rl_shift
-00001E9E                           640      
-00001E9E  534C                     641      SUBQ #1,A4  *gets range 3->0
-00001EA0                           642      
-00001EA0  4284                     643      CLR.L D4
-00001EA2                           644      *ADDQ #3,A4  *get range 3->0
-00001EA2  1814                     645      MOVE.B (A4),D4  *load 3->0 onto D4
-00001EA4                           646      
-00001EA4  4287                     647      CLR.L D7
-00001EA6  1E3C 001D                648      MOVE.B #29,D7
-00001EAA  EFAC                     649      LSL.L D7,D4     *isolate 2->0 on D4
-00001EAC  EEAC                     650      LSR.L D7,D4
-00001EAE                           651  
-00001EAE                           652      *SUBQ #3,A4  *reset counter back to 15->12
-00001EAE                           653      
-00001EAE  B87C 0000                654      CMP #$0,D4
-00001EB2  6700 000E                655      BEQ rl_shift
-00001EB6                           656      
-00001EB6  B87C 0001                657      CMP #$1,D4
-00001EBA  6700 0006                658      BEQ rl_shift
-00001EBE                           659      
-00001EBE  6000 0404                660      BRA not_rl_shift
-00001EC2                           661  
-00001EC2                           662  rl_shift    *is it memory or register shift?
-00001EC2  574C                     663      SUBQ #3,A4  *reset counter back to 15->12
-00001EC4  4284                     664      CLR.L D4
-00001EC6  544C                     665      ADDQ #$2,A4 *gets digits 7->4 into D4
-00001EC8  1814                     666      MOVE.B (A4),D4
-00001ECA                           667  
-00001ECA  E48C                     668      LSR.L #2,D4 *isolates the 7->6 spot
-00001ECC  B87C 0003                669      CMP #$3,D4
-00001ED0  6600 0248                670      BNE rl_shift_b  *branch to part b(register)if necessary
-00001ED4                           671  
-00001ED4                           672  *continue with ea shift
-00001ED4                           673  
-00001ED4  4284                     674      CLR.L D4
-00001ED6  534C                     675      SUBQ #1,A4  *gets 11->8 number
-00001ED8  1814                     676      MOVE.B (A4),D4
-00001EDA                           677  
-00001EDA  E28C                     678      LSR.L #1,D4 *isolate 11->9
-00001EDC                           679  
-00001EDC                           680      
-00001EDC  B87C 0000                681      CMP #$0,D4  *if 11->9 == 000, jump to print AS
-00001EE0  6700 003E                682      BEQ print_as_a
-00001EE4                           683  
-00001EE4  B87C 0001                684      CMP #$1,D4  *if 11->9 == 001, jump to print LS
-00001EE8  6700 0044                685      BEQ print_ls_a
-00001EEC                           686  
-00001EEC  B87C 0002                687      CMP #$2,D4  *if 11->9 == 010, bad op 
-00001EF0  6700 03D2                688      BEQ not_rl_shift 
-00001EF4                           689  
-00001EF4  B87C 0003                690      CMP #$3,D4  *if 11->9 == 011. jump to print RO
-00001EF8  6700 0042                691      BEQ print_ro_a
-00001EFC                           692  
-00001EFC                           693      *could probably just BRA not_rl_shift
-00001EFC                           694      
-00001EFC  B87C 0004                695      CMP #$4,D4  *if 11->9 == 100, bad op 
-00001F00  6700 03C2                696      BEQ not_rl_shift
-00001F04                           697  
-00001F04  B87C 0005                698      CMP #$5,D4  *if 11->9 == 101, bad op 
-00001F08  6700 03BA                699      BEQ not_rl_shift 
-00001F0C                           700  
-00001F0C  B87C 0006                701      CMP #$6,D4  *if 11->9 == 110, bad op 
-00001F10  6700 03B2                702      BEQ not_rl_shift 
-00001F14                           703  
-00001F14  B87C 0007                704      CMP #$7,D4  *if 11->9 == 111, bad op 
-00001F18  6700 03AA                705      BEQ not_rl_shift
-00001F1C                           706  
-00001F1C  6000 03A6                707      BRA not_rl_shift
-00001F20                           708  
-00001F20                           709  print_as_a  *print AS
-00001F20                           710  
-00001F20  43F8 189E                711      LEA pas,A1
-00001F24  103C 000E                712      MOVE.B #14,D0
-00001F28  4E4F                     713      TRAP #15
-00001F2A  6000 001E                714      BRA rl_shift_a1
-00001F2E                           715  
-00001F2E                           716  print_ls_a  *print LS
-00001F2E  43F8 18A1                717      LEA pls,A1
-00001F32  103C 000E                718      MOVE.B #14,D0
-00001F36  4E4F                     719      TRAP #15
-00001F38  6000 0010                720      BRA rl_shift_a1
-00001F3C                           721  
-00001F3C                           722  print_ro_a  *print RO
-00001F3C  43F8 18A4                723      LEA pro,A1
-00001F40  103C 000E                724      MOVE.B #14,D0
-00001F44  4E4F                     725      TRAP #15
-00001F46  6000 0002                726      BRA rl_shift_a1
-00001F4A                           727  
-00001F4A                           728  rl_shift_a1 *ea
-00001F4A  4284                     729      CLR.L D4
-00001F4C  1814                     730      MOVE.B (A4),D4  *gets 11->8 into D4
-00001F4E  1E3C 001F                731      MOVE.B #31,D7
-00001F52  EFAC                     732      LSL.L D7,D4 *isolate 8
-00001F54  EEAC                     733      LSR.L D7,D4
-00001F56                           734      
-00001F56  B87C 0000                735      CMP #$0,D4  *if spot 8 == 0,go to print R
-00001F5A  6700 000E                736      BEQ print_r_a
-00001F5E                           737      
-00001F5E  B87C 0001                738      CMP #$1,D4  *if spot 8 == 1, go to print L
-00001F62  6700 0014                739      BEQ print_l_a
-00001F66                           740  
-00001F66  6000 035C                741      BRA not_rl_shift
-00001F6A                           742  
-00001F6A                           743  print_r_a   *print R
-00001F6A  43F8 18A7                744      LEA pright,A1
-00001F6E  103C 000E                745      MOVE.B #14,D0
-00001F72  4E4F                     746      TRAP #15
-00001F74  6000 0010                747      BRA rl_shift_a2
-00001F78                           748  
-00001F78                           749  print_l_a   *print L
-00001F78  43F8 18A9                750      LEA pleft,A1
-00001F7C  103C 000E                751      MOVE.B #14,D0
-00001F80  4E4F                     752      TRAP #15
-00001F82  6000 0002                753      BRA rl_shift_a2
-00001F86                           754  
-00001F86                           755  rl_shift_a2 *register shift
-00001F86  4284                     756      CLR.L D4
-00001F88  524C                     757      ADDQ #$1,A4 *gets digits 7->4 into D4
-00001F8A  1814                     758      MOVE.B (A4),D4
-00001F8C                           759  
-00001F8C  1E3C 001E                760      MOVE.B #30,D7
-00001F90  EFAC                     761      LSL.L D7,D4 *isolate 5->4
-00001F92  EEAC                     762      LSR.L D7,D4
-00001F94                           763  
-00001F94  E38C                     764      LSL.L #1,D4 *prep to add 3 onto it
-00001F96  4282                     765      CLR.L D2
-00001F98  2404                     766      MOVE.L D4,D2    *store 5->4 on D2 to read
-00001F9A                           767  
-00001F9A  4284                     768      CLR.L D4
-00001F9C  524C                     769      ADDQ #1,A4  *gets 3->0
-00001F9E  1814                     770      MOVE.B (A4),D4
-00001FA0                           771      
-00001FA0  E68C                     772      LSR.L #3,D4 *isolate 3
-00001FA2                           773  
-00001FA2  D484                     774      ADD.L D4,D2 *add shifted spot 5->4 to spot 3, D2 = 5->3
-00001FA4                           775  
-00001FA4  4284                     776      CLR.L D4
-00001FA6                           777  
-00001FA6  1814                     778      MOVE.B (A4),D4  *load 3->0 on D4
-00001FA8  1E3C 001D                779      MOVE.B #29,D7
-00001FAC  EFAC                     780      LSL.L D7,D4 *isolate 2->0
-00001FAE  EEAC                     781      LSR.L D7,D4
-00001FB0  4281                     782      CLR.L D1    *load 2->0 into D1
-00001FB2  1204                     783      MOVE.B D4,D1
-00001FB4                           784  
-00001FB4  43F8 18AB                785      LEA space,A1
-00001FB8  103C 000E                786      MOVE.B #14,D0
-00001FBC  4E4F                     787      TRAP #15
-00001FBE                           788  
-00001FBE  B47C 0002                789      CMP #$2,D2  *if == 010, print (An)
-00001FC2  6700 001E                790      BEQ print_pAnp_rl_a
-00001FC6                           791  
-00001FC6  B47C 0003                792      CMP #$3,D2  *if == 011, print (An)+
-00001FCA  6700 0046                793      BEQ print_pAnpplus_rl_a
-00001FCE                           794  
-00001FCE  B47C 0004                795      CMP #$4,D2  *if == 100, print -(An)
-00001FD2  6700 0078                796      BEQ print_minuspAnp_rl_a
-00001FD6                           797  
-00001FD6  B47C 0007                798      CMP #$7,D2  *if == 111, print ea
-00001FDA  6700 00AA                799      BEQ print_ea_rl_a
-00001FDE                           800      
-00001FDE  6000 02E4                801      BRA not_rl_shift
-00001FE2                           802  
-00001FE2                           803  print_pAnp_rl_a     *print (An)
-00001FE2  43F8 18C3                804      LEA leftp,A1
-00001FE6  103C 000E                805      MOVE.B #14,D0
-00001FEA  4E4F                     806      TRAP #15
-00001FEC                           807  
-00001FEC  43F8 18AF                808      LEA aregister,A1
-00001FF0  103C 000E                809      MOVE.B #14,D0
-00001FF4  4E4F                     810      TRAP #15
-00001FF6                           811      
-00001FF6  103C 0003                812      MOVE.B #3,D0
-00001FFA  4E4F                     813      TRAP #15
-00001FFC                           814      
-00001FFC  43F8 18C5                815      LEA rightp,A1
-00002000  103C 000E                816      MOVE.B #14,D0
-00002004  4E4F                     817      TRAP #15
-00002006                           818  
-00002006  1A3C 00CC                819      MOVE.B #$CC,D5      *DONE
-0000200A  584B                     820      ADDQ #4,A3
-0000200C  1613                     821      MOVE.B (A3),D3
-0000200E  6000 F912                822      BRA newline
-00002012                           823  
-00002012                           824  print_pAnpplus_rl_a *print (An)+
-00002012  43F8 18C3                825      LEA leftp,A1
-00002016  103C 000E                826      MOVE.B #14,D0
-0000201A  4E4F                     827      TRAP #15
-0000201C                           828  
-0000201C  43F8 18AF                829      LEA aregister,A1
-00002020  103C 000E                830      MOVE.B #14,D0
-00002024  4E4F                     831      TRAP #15
-00002026                           832      
-00002026  103C 0003                833      MOVE.B #3,D0
-0000202A  4E4F                     834      TRAP #15
-0000202C                           835  
-0000202C  43F8 18C5                836      LEA rightp,A1
-00002030  103C 000E                837      MOVE.B #14,D0
-00002034  4E4F                     838      TRAP #15
-00002036                           839  
-00002036  43F8 18C7                840      LEA plus,A1
-0000203A  103C 000E                841      MOVE.B #14,D0
-0000203E  4E4F                     842      TRAP #15
-00002040                           843  
-00002040  1A3C 00CC                844      MOVE.B #$CC,D5      *DONE
-00002044  584B                     845      ADDQ #4,A3
-00002046  1613                     846      MOVE.B (A3),D3
-00002048  6000 F8D8                847      BRA newline
-0000204C                           848  
-0000204C                           849  print_minuspAnp_rl_a    *print -(An)
-0000204C                           850  
-0000204C  43F8 18C9                851      LEA minus,A1
-00002050  103C 000E                852      MOVE.B #14,D0
-00002054  4E4F                     853      TRAP #15
-00002056                           854  
-00002056  43F8 18C3                855      LEA leftp,A1
-0000205A  103C 000E                856      MOVE.B #14,D0
-0000205E  4E4F                     857      TRAP #15
-00002060                           858  
-00002060  43F8 18AF                859      LEA aregister,A1
-00002064  103C 000E                860      MOVE.B #14,D0
-00002068  4E4F                     861      TRAP #15
-0000206A                           862      
-0000206A  103C 0003                863      MOVE.B #3,D0
-0000206E  4E4F                     864      TRAP #15
-00002070                           865  
-00002070  43F8 18C5                866      LEA rightp,A1
-00002074  103C 000E                867      MOVE.B #14,D0
-00002078  4E4F                     868      TRAP #15
-0000207A                           869  
-0000207A  1A3C 00CC                870      MOVE.B #$CC,D5      *DONE
-0000207E  584B                     871      ADDQ #4,A3
-00002080  1613                     872      MOVE.B (A3),D3
-00002082  6000 F89E                873      BRA newline
-00002086                           874      
-00002086                           875  print_ea_rl_a   *print ea 
-00002086  B27C 0002                876      CMP #$2,D1
-0000208A  6700 0238                877      BEQ not_rl_shift
-0000208E                           878  
-0000208E  B27C 0003                879      CMP #$3,D1
-00002092  6700 0230                880      BEQ not_rl_shift
-00002096                           881  
-00002096  B27C 0004                882      CMP #$4,D1
-0000209A  6700 0228                883      BEQ not_rl_shift
-0000209E                           884  
-0000209E  B27C 0005                885      CMP #$5,D1
-000020A2  6700 0220                886      BEQ not_rl_shift
-000020A6                           887  
-000020A6  B27C 0006                888      CMP #$6,D1
-000020AA  6700 0218                889      BEQ not_rl_shift
-000020AE                           890  
-000020AE  B27C 0007                891      CMP #$7,D1
-000020B2  6700 0210                892      BEQ not_rl_shift
-000020B6                           893  
-000020B6  43F8 18B3                894      LEA dollarsign,A1
-000020BA  103C 000E                895      MOVE.B #14,D0
-000020BE  4E4F                     896      TRAP #15
-000020C0                           897  
-000020C0  4284                     898      CLR.L D4
-000020C2  524C                     899      ADDQ #1,A4
-000020C4  1814                     900      MOVE.B (A4),D4
-000020C6  B87C 00FF                901      CMP #$FF,D4
-000020CA  6700 01F8                902      BEQ not_rl_shift
-000020CE  B87C 00DD                903      CMP #$DD,D4
-000020D2  6700 01F0                904      BEQ not_rl_shift
-000020D6                           905      
-000020D6  6000 0002                906      BRA print_rl_ea
-000020DA                           907      
-000020DA                           908  print_rl_ea
-000020DA  4284                     909      CLR.L D4
-000020DC  1814                     910      MOVE.B (A4),D4
-000020DE  4282                     911      CLR.L D2
-000020E0  143C 0010                912      MOVE.B #16,D2
-000020E4  4281                     913      CLR.L D1
-000020E6  2204                     914      MOVE.L D4,D1    *print extra ea from D4
-000020E8  103C 000F                915      MOVE.B #15,D0
-000020EC  4E4F                     916      TRAP #15
-000020EE                           917      
-000020EE  524C                     918      ADDQ #1,A4
-000020F0  1814                     919      MOVE.B (A4),D4
-000020F2                           920      
-000020F2  524B                     921      ADDQ #1,A3
-000020F4                           922      
-000020F4  B87C 00FF                923      CMP #$FF,D4
-000020F8  6700 0014                924      BEQ rl_shift_done
-000020FC  B87C 00DD                925      CMP #$DD,D4
-00002100  66D8                     926      BNE print_rl_ea
-00002102                           927  
-00002102  1A3C 00CC                928      MOVE.B #$CC,D5  *DONE
-00002106  584B                     929      ADDQ #4,A3
-00002108  1613                     930      MOVE.B (A3),D3
-0000210A  6000 F816                931      BRA newline
-0000210E                           932      
-0000210E                           933  rl_shift_done
-0000210E  1A3C 00CC                934      MOVE.B #$CC,D5  *DONE
-00002112  584B                     935      ADDQ #4,A3
-00002114  1613                     936      MOVE.B (A3),D3
-00002116  6000 F80A                937      BRA newline
-0000211A                           938  
-0000211A                           939  rl_shift_b  *=====================PART B FOR MEMORY LOCATIONS==================
-0000211A  4284                     940      CLR.L D4
-0000211C  1814                     941      MOVE.B (A4),D4  *7->4 back into D4
-0000211E  1E3C 001F                942      MOVE.B #31,D7
-00002122  EFAC                     943      LSL.L D7,D4 *isolates 4
-00002124  EEAC                     944      LSR.L D7,D4
-00002126  E38C                     945      LSL.L #1,D4 *preps to get added
-00002128  4282                     946      CLR.L D2
-0000212A  1404                     947      MOVE.B D4,D2    *stores 4 in D4
-0000212C                           948  
-0000212C  524C                     949      ADDQ #$1,A4 *SHIFT gets digits 3->0 into D4
-0000212E  1814                     950      MOVE.B (A4),D4
-00002130  E68C                     951      LSR.L #3,D4 *isolate 3
-00002132                           952      
-00002132  D802                     953      ADD.B D2,D4 *gets 4->3
-00002134                           954      
-00002134  B87C 0000                955      CMP #$0,D4
-00002138  6700 0016                956      BEQ print_as_b
-0000213C                           957  
-0000213C  B87C 0001                958      CMP #$1,D4
-00002140  6700 001C                959      BEQ print_ls_b
-00002144                           960  
-00002144  B87C 0003                961      CMP #$3,D4
-00002148  6700 0022                962      BEQ print_ro_b
-0000214C                           963  
-0000214C  6000 0176                964      BRA not_rl_shift
-00002150                           965      
-00002150                           966  print_as_b      *print AS
-00002150  43F8 189E                967      LEA pas,A1
-00002154  103C 000E                968      MOVE.B #14,D0
-00002158  4E4F                     969      TRAP #15
-0000215A  6000 001E                970      BRA rl_shift_b1
-0000215E                           971  
-0000215E                           972  print_ls_b      *print LS
-0000215E  43F8 18A1                973      LEA pls,A1
-00002162  103C 000E                974      MOVE.B #14,D0
-00002166  4E4F                     975      TRAP #15
-00002168  6000 0010                976      BRA rl_shift_b1
-0000216C                           977  
-0000216C                           978  print_ro_b  *print RO
-0000216C  43F8 18A4                979      LEA pro,A1
-00002170  103C 000E                980      MOVE.B #14,D0
-00002174  4E4F                     981      TRAP #15
-00002176  6000 0002                982      BRA rl_shift_b1
-0000217A                           983  
-0000217A                           984  rl_shift_b1
-0000217A  554C                     985      SUBQ #2,A4      *SHIFT
-0000217C  1814                     986      MOVE.B (A4),D4  *gets 11->8 into D4
-0000217E  1E3C 001F                987      MOVE.B #31,D7
-00002182  EFAC                     988      LSL.L D7,D4     *isolate 8
-00002184  EEAC                     989      LSR.L D7,D4
-00002186                           990  
-00002186  B87C 0000                991      CMP #$0,D4      *if spot 8 == 0, print R
-0000218A  6700 000E                992      BEQ print_r_b
-0000218E                           993  
-0000218E  B87C 0001                994      CMP #$1,D4      *if spot 8 == 1, print L
-00002192  6700 0014                995      BEQ print_l_b
-00002196                           996  
-00002196  6000 012C                997      BRA not_rl_shift
-0000219A                           998  
-0000219A                           999  print_r_b   *print R
-0000219A  43F8 18A7               1000      LEA pright,A1
-0000219E  103C 000E               1001      MOVE.B #14,D0
-000021A2  4E4F                    1002      TRAP #15
-000021A4  6000 0010               1003      BRA rl_shift_b2
-000021A8                          1004  
-000021A8                          1005  print_l_b   *print L
-000021A8  43F8 18A9               1006      LEA pleft,A1
-000021AC  103C 000E               1007      MOVE.B #14,D0
-000021B0  4E4F                    1008      TRAP #15
-000021B2  6000 0002               1009      BRA rl_shift_b2
-000021B6                          1010  
-000021B6                          1011  rl_shift_b2
-000021B6  524C                    1012      ADDQ #1,A4      *SHIFT
-000021B8  1814                    1013      MOVE.B (A4),D4  *gets 7->4 into D4
-000021BA  E48C                    1014      LSR.L #2,D4     *isolate 7->6
-000021BC                          1015  
-000021BC  B87C 0000               1016      CMP #$0,D4
-000021C0  6700 0016               1017      BEQ print_byte_rl_b
-000021C4                          1018  
-000021C4  B87C 0001               1019      CMP #$1,D4
-000021C8  6700 001C               1020      BEQ print_word_rl_b
-000021CC                          1021  
-000021CC  B87C 0002               1022      CMP #$2,D4
-000021D0  6700 0022               1023      BEQ print_long_rl_b
-000021D4                          1024      
-000021D4  6000 00EE               1025      BRA not_rl_shift
-000021D8                          1026  
-000021D8                          1027  print_byte_rl_b *print .B
-000021D8  43F8 18B7               1028      LEA dotb,A1
-000021DC  103C 000E               1029      MOVE.B #14,D0
-000021E0  4E4F                    1030      TRAP #15
-000021E2  6000 001E               1031      BRA rl_shift_b3
-000021E6                          1032  
-000021E6                          1033  print_word_rl_b *print .W
-000021E6  43F8 18BB               1034      LEA dotw,A1
-000021EA  103C 000E               1035      MOVE.B #14,D0
-000021EE  4E4F                    1036      TRAP #15
-000021F0  6000 0010               1037      BRA rl_shift_b3
-000021F4                          1038  
-000021F4                          1039  print_long_rl_b *print .L
-000021F4  43F8 18BF               1040      LEA dotl,A1
-000021F8  103C 000E               1041      MOVE.B #14,D0
-000021FC  4E4F                    1042      TRAP #15
-000021FE  6000 0002               1043      BRA rl_shift_b3
-00002202                          1044  
-00002202                          1045  rl_shift_b3
-00002202  4284                    1046      CLR.L D4
-00002204  1814                    1047      MOVE.B (A4),D4  *gets 7->4 into D4
-00002206  E28C                    1048      LSR.L #1,D4     *isolate 5
-00002208  1E3C 001F               1049      MOVE.B #31,D7
-0000220C  EFAC                    1050      LSL.L D7,D4
-0000220E  EEAC                    1051      LSR.L D7,D4
-00002210                          1052  
-00002210  B87C 0000               1053      CMP #$0,D4
-00002214  6700 000E               1054      BEQ print_number_rl_b
-00002218                          1055  
-00002218  B87C 0001               1056      CMP #$1,D4
-0000221C  6700 0056               1057      BEQ print_d_rl_b
-00002220                          1058  
-00002220  6000 00A2               1059      BRA not_rl_shift
-00002224                          1060  
-00002224                          1061  print_number_rl_b   *prints #number
-00002224  534C                    1062      SUBQ #1,A4      *SHIFT gets 11->8 into D4
-00002226  1814                    1063      MOVE.B (A4),D4
-00002228                          1064  
-00002228  E28C                    1065      LSR.L #1,D4     *isolates 11->9
-0000222A  4281                    1066      CLR.L D1
-0000222C  2204                    1067      MOVE.L D4,D1
-0000222E                          1068      
-0000222E  43F8 18B1               1069      LEA hashtag,A1  *print #
-00002232  103C 000E               1070      MOVE.B #14,D0
-00002236  4E4F                    1071      TRAP #15
-00002238                          1072  
-00002238  103C 0003               1073      MOVE.B #3,D0    *print number in D1
-0000223C  4E4F                    1074      TRAP #15
-0000223E                          1075      
-0000223E  43F8 18B5               1076      LEA comma,A1    *print ,
-00002242  103C 000E               1077      MOVE.B #14,D0
-00002246  4E4F                    1078      TRAP #15
-00002248                          1079  
-00002248  43F8 18AD               1080      LEA dregister,A1    *print D
-0000224C  103C 000E               1081      MOVE.B #14,D0
-00002250  4E4F                    1082      TRAP #15
-00002252                          1083  
-00002252  544C                    1084      ADDQ #2,A4      *SHIFT get 3->0 into D4
-00002254  1814                    1085      MOVE.B (A4),D4
-00002256                          1086  
-00002256  4281                    1087      CLR.L D1
-00002258  1E3C 001D               1088      MOVE.B #29,D7
-0000225C  EFAC                    1089      LSL.L D7,D4     *isolate 2->0
-0000225E  EEAC                    1090      LSR.L D7,D4
-00002260  2204                    1091      MOVE.L D4,D1
-00002262                          1092  
-00002262  103C 0003               1093      MOVE.B #3,D0    *print number in D1, dregister
-00002266  4E4F                    1094      TRAP #15
-00002268                          1095  
-00002268  1A3C 00CC               1096      MOVE.B #$CC,D5  *DONE
-0000226C  584B                    1097      ADDQ #4,A3
-0000226E  1613                    1098      MOVE.B (A3),D3
-00002270  6000 F6B0               1099      BRA newline
-00002274                          1100  
-00002274                          1101  print_d_rl_b
-00002274  534C                    1102      SUBQ #1,A4      *SHIFT gets 11->8 into D4
-00002276  1814                    1103      MOVE.B (A4),D4
-00002278                          1104  
-00002278  E28C                    1105      LSR.L #1,D4     *isolates 11->9
-0000227A  4281                    1106      CLR.L D1
-0000227C  2204                    1107      MOVE.L D4,D1
-0000227E                          1108      
-0000227E  43F8 18AD               1109      LEA dregister,A1    *print D
-00002282  103C 000E               1110      MOVE.B #14,D0
-00002286  4E4F                    1111      Trap #15
-00002288                          1112  
-00002288  103C 0003               1113      MOVE.B #3,D0    *print number in D1
-0000228C  4E4F                    1114      TRAP #15
-0000228E                          1115  
-0000228E  43F8 18B5               1116      LEA comma,A1    *print ,
-00002292  103C 000E               1117      MOVE.B #14,D0
-00002296  4E4F                    1118      Trap #15
-00002298                          1119  
-00002298  43F8 18AD               1120      LEA dregister,A1    *print D
-0000229C  103C 000E               1121      MOVE.B #14,D0
-000022A0  4E4F                    1122      TRAP #15
-000022A2                          1123  
-000022A2  544C                    1124      ADDQ #2,A4      *get 3->0 into D4
-000022A4  1814                    1125      MOVE.B (A4),D4
-000022A6                          1126  
-000022A6  4281                    1127      CLR.L D1
-000022A8  1E3C 001D               1128      MOVE.B #29,D7
-000022AC  EFAC                    1129      LSL.L D7,D4     *isolate 2->0
-000022AE  EEAC                    1130      LSR.L D7,D4
-000022B0  2204                    1131      MOVE.L D4,D1
-000022B2                          1132  
-000022B2  103C 0003               1133      MOVE.B #3,D0    *print number in D1, dregister
-000022B6  4E4F                    1134      TRAP #15
-000022B8                          1135  
-000022B8  1A3C 00CC               1136      MOVE.B #$CC,D5  *DONE
-000022BC  584B                    1137      ADDQ #4,A3
-000022BE  1613                    1138      MOVE.B (A3),D3
-000022C0  6000 F660               1139      BRA  newline
-000022C4                          1140  
-000022C4                          1141  not_rl_shift
-000022C4  4E75                    1142      RTS
-000022C6                          1143  *===================================================================================
-000022C6                          1144  
-000022C6                          1145  *Pre-conditions:    
-000022C6                          1146  *D6 needs to contain addressing mode
-000022C6                          1147  *D5 needs to contain EA/register number          
-000022C6  BC7C 0000               1148  EA      CMP #$0,D6
-000022CA  6700 000C               1149          BEQ EA_000
-000022CE                          1150          
-000022CE  BC7C 0001               1151          CMP #$1,D6
-000022D2  6700 001C               1152          BEQ EA_001
-000022D6                          1153          
-000022D6  4E75                    1154          RTS
-000022D8                          1155  
-000022D8  43F8 18AD               1156  EA_000  LEA dregister,A1
-000022DC  103C 000E               1157          MOVE.B #14,D0
-000022E0  4E4F                    1158          TRAP #15
-000022E2  1205                    1159          MOVE.B D5,D1
-000022E4  143C 0010               1160          MOVE.B #16,D2
-000022E8  103C 000F               1161          MOVE.B #15,D0
-000022EC  4E4F                    1162          TRAP #15
-000022EE  4E75                    1163          RTS
-000022F0                          1164          
-000022F0  43F8 18AF               1165  EA_001  LEA aregister,A1
-000022F4  103C 000E               1166          MOVE.B #14,D0
-000022F8  4E4F                    1167          TRAP #15
-000022FA  1205                    1168          MOVE.B D5,D1
-000022FC  143C 0010               1169          MOVE.B #16,D2
-00002300  103C 000F               1170          MOVE.B #15,D0
-00002304  4E4F                    1171          TRAP #15
-00002306  4E75                    1172          RTS
-00002308                          1173  
-00002308  43F8 18C3               1174  EA_010  LEA leftp,A1
-0000230C  103C 000E               1175          MOVE.B #14,D0
-00002310  43F8 18AF               1176          LEA aregister,A1
-00002314  4E4F                    1177          TRAP #15
-00002316  1205                    1178          MOVE.B D5,D1
-00002318  143C 0010               1179          MOVE.B #16,D2
-0000231C  103C 000F               1180          MOVE.B #15,D0
-00002320  4E4F                    1181          TRAP #15
-00002322  43F8 18C5               1182          LEA rightp,A1
-00002326  103C 000E               1183          MOVE.B #14,D0
-0000232A  43F8 18AF               1184          LEA aregister,A1
-0000232E  4E75                    1185          RTS
-00002330                          1186  
-00002330  4E71                    1187  EA_011  NOP
-00002332  4E75                    1188          RTS 
-00002334                          1189  
-00002334  4E71                    1190  EA_100  NOP
-00002336  4E75                    1191          RTS    
-00002338                          1192  
-00002338  4E71                    1193  EA_101  NOP
-0000233A  4E75                    1194          RTS  
-0000233C                          1195          
-0000233C  4E71                    1196  EA_110  NOP
-0000233E  4E75                    1197          RTS
-00002340                          1198  
-00002340  4E71                    1199  EA_111  NOP
-00002342  4E75                    1200          RTS 
-00002344                          1201  
-00002344                          1202  IsolateRegisters
-00002344  4245                    1203          CLR D5
-00002346  4246                    1204          CLR D6
-00002348  4247                    1205          CLR D7
-0000234A                          1206          
-0000234A                          1207          *Isolate and get source mode
-0000234A  544C                    1208          ADDQ #2,A4
-0000234C  1A14                    1209          MOVE.B (A4),D5
-0000234E  524C                    1210          ADDQ #1,A4
-00002350  1C14                    1211          MOVE.B (A4),D6
-00002352  1E3C 001E               1212          MOVE.B #30,D7
-00002356  EFAD                    1213          LSL.L D7,D5
-00002358  EEAD                    1214          LSR.L D7,D5
-0000235A  E60E                    1215          LSR.B #$3,D6
-0000235C  DA06                    1216          ADD.B D6,D5
-0000235E  11C5 1854               1217          MOVE.B D5,sourcem
-00002362                          1218          
-00002362                          1219          *Isolate and get source register
-00002362  384B                    1220          MOVEA.W A3,A4
-00002364  544C                    1221          ADDQ #2,A4
-00002366  1A14                    1222          MOVE.B (A4),D5
-00002368  1E3C 001D               1223          MOVE.B #29,D7
-0000236C  EFAD                    1224          LSL.L D7,D5
-0000236E  EEAD                    1225          LSR.L D7,D5
-00002370  11C5 1852               1226          MOVE.B D5,source
-00002374                          1227          
-00002374                          1228          *Isolate and get destination mode
-00002374  384B                    1229          MOVEA.W A3,A4
-00002376  1A14                    1230          MOVE.B (A4),D5
-00002378  524C                    1231          ADDQ #1,A4
-0000237A  1C14                    1232          MOVE.B (A4),D6
-0000237C  1E3C 001F               1233          MOVE.B #31,D7
-00002380  EFAD                    1234          LSL.L D7,D5
-00002382  5507                    1235          SUBI.B #2,D7
-00002384  EEAD                    1236          LSR.L D7,D5
-00002386  E40E                    1237          LSR.B #$2,D6
-00002388  DC05                    1238          ADD.B D5,D6
-0000238A  11C6 1855               1239          MOVE.B D6,destm
-0000238E                          1240          
-0000238E                          1241          *Isolate and get destination register
-0000238E  384B                    1242          MOVEA.W A3,A4
-00002390  1A14                    1243          MOVE.B (A4),D5
-00002392  E20D                    1244          LSR.B #$1,D5
-00002394  11C5 1853               1245          MOVE.B D5,dest
-00002398                          1246  
-00002398  4E75                    1247          RTS 
-0000239A                          1248        
-0000239A                          1249      END    START        ; last line of source
+0000100C  43F9 0000112C             14      LEA buffer,A1
+00001012  343C 07D0                 15      MOVE.W #datasize,D2
+00001016  103C 0035                 16      MOVE.B #53,D0
+0000101A  4E4F                      17      TRAP #15
+0000101C  2649                      18      MOVEA.L A1,A3
+0000101E  1E00                      19      MOVE.B D0,D7
+00001020                            20       
+00001020  1611                      21  loop1 MOVE.B (A1),D3
+00001022  B67C 00FF                 22        CMP #$FF,D3
+00001026  6700 000C                 23        BEQ done
+0000102A  4EB9 000019E8             24        JSR convert
+00001030  5249                      25        ADDQ #1,A1
+00001032  60EC                      26        BRA loop1
+00001034                            27  
+00001034  4243                      28  done CLR D3
+00001036  161B                      29      MOVE.B (A3)+,D3
+00001038                            30      
+00001038                            31  loop2
+00001038  2C7C 00000000             32      MOVEA.L #0,A6
+0000103E  103C 000B                 33      MOVE.B #11,D0
+00001042  323C FF00                 34      MOVE.W #$FF00,D1
+00001046  4E4F                      35      TRAP #15
+00001048                            36  innerloop
+00001048  524E                      37      ADDQ #1,A6
+0000104A  220B                      38      MOVE.L A3,D1
+0000104C  143C 0010                 39      MOVE.B #16,D2
+00001050  103C 000F                 40      MOVE.B #15,D0
+00001054  4E4F                      41      TRAP #15
+00001056  7200                      42      MOVE.L #$0,D1
+00001058  43F9 0000195D             43      LEA tab,A1
+0000105E  103C 000E                 44      MOVE.B #14,D0
+00001062  4E4F                      45      TRAP #15
+00001064  4245                      46      CLR D5
+00001066  4246                      47      CLR D6
+00001068  13FC 0000 00001913        48      MOVE.B #$0,badop
+00001070  4EB9 00001A80             49      JSR checkop
+00001076  1C39 00001913             50      MOVE.B badop,D6
+0000107C  BC7C 00EE                 51      CMP #$EE,D6
+00001080  6600 0018                 52      BNE inlpn1
+00001084  43F9 00001902             53      LEA invalid,A1
+0000108A  103C 000E                 54      MOVE.B #14,D0
+0000108E  4E4F                      55      TRAP #15
+00001090  4EB9 00001A38             56      JSR newline
+00001096  6000 0020                 57      BRA clr
+0000109A  BA7C 00CC                 58  inlpn1 CMP #$CC,D5 *CC represents invalid opcode
+0000109E  6600 000C                 59      BNE notvalid
+000010A2  4EB9 00001A38             60      JSR newline
+000010A8  6000 000E                 61      BRA clr
+000010AC  4EB9 00001A74             62  notvalid JSR printdata 
+000010B2  4EB9 00001A4E             63      JSR print
+000010B8  B67C 00DD                 64  clr CMP #$DD,D3 *DD represents new line
+000010BC  6600 0006                 65      BNE continue
+000010C0  161B                      66      MOVE.B (A3)+,D3
+000010C2  60F4                      67      BRA clr
+000010C4  B67C 00FF                 68  continue CMP #$FF,D3 *FF represents end of stream
+000010C8  6700 0020                 69      BEQ complete
+000010CC  BCFC 001D                 70      CMPA #29,A6
+000010D0  6600 FF76                 71      BNE innerloop
+000010D4  43F9 00001939             72  requery LEA nextpage,A1
+000010DA  103C 0012                 73      MOVE.B #18,D0
+000010DE  4E4F                      74      TRAP #15
+000010E0  B27C 0001                 75      CMP #1,D1
+000010E4  6700 FF52                 76      BEQ loop2
+000010E8  60EA                      77      BRA requery
+000010EA                            78      
+000010EA  103C 0038                 79  complete MOVE.B #56,D0
+000010EE  4E4F                      80      TRAP #15
+000010F0                            81      
+000010F0  43F9 00001914             82  reprompt LEA restart,A1
+000010F6  103C 0012                 83      MOVE.B #18,D0
+000010FA  4E4F                      84      TRAP #15
+000010FC  B27C 0001                 85      CMP #1,D1
+00001100  6600 0010                 86      BNE nextquest
+00001104  103C 000B                 87      MOVE.B #11,D0
+00001108  323C FF00                 88      MOVE.W #$FF00,D1
+0000110C  4E4F                      89      TRAP #15
+0000110E  6000 FEF0                 90      BRA start
+00001112  B27C 0002                 91  nextquest CMP #2,D1
+00001116  66D8                      92      BNE reprompt
+00001118  103C 0009                 93      MOVE.B #9,D0
+0000111C  4E4F                      94      TRAP #15
+0000111E  FFFF FFFF                 95      SIMHALT
+00001122                            96  
+00001122                            97  * Put variables and constants here
+00001122= 74 65 73 74 31 2E ...     98  filename dc.b 'test1.txt', 0
+0000112C  =000007D0                 99  datasize equ 2000
+0000112C                           100  buffer ds.b 2000
+000018FC= 44 41 54 41 20 00        101  data dc.b 'DATA ',0
+00001902= 09 49 4E 56 41 4C ...    102  invalid dc.b HT,'INVALID EA',0
+0000190E= 00                       103  source dc.b 0
+0000190F= 00                       104  dest dc.b 0
+00001910= 00                       105  sourcem dc.b 0
+00001911= 00                       106  destm dc.b 0
+00001912= 00                       107  counter dc.b 0
+00001913= 00                       108  badop dc.b 0
+00001914                           109  
+00001914  =0000000D                110  CR EQU $0D
+00001914  =0000000A                111  LF EQU $0A
+00001914  =00000009                112  HT EQU $09
+00001914= 50 72 65 73 73 20 ...    113  restart dc.b 'Press 1 to restart or 2 to exit...',CR,LF,0
+00001939= 50 72 65 73 73 20 ...    114  nextpage dc.b 'Press 1 to continue simulation...',CR,LF,0
+0000195D= 09 00                    115  tab dc.b '',HT,0
+0000195F                           116  
+0000195F= 4D 4F 56 45 2E 42 ...    117  pmove_b dc.b 'MOVE.B ',0
+00001967= 4D 4F 56 45 2E 57 ...    118  pmove_w dc.b 'MOVE.W ',0
+0000196F= 4D 4F 56 45 2E 4C ...    119  pmove_l dc.b 'MOVE.L ',0
+00001977= 4D 4F 56 45 41 2E ...    120  pmovea_w dc.b 'MOVEA.W ',0
+00001980= 4D 4F 56 45 41 2E ...    121  pmovea_l dc.b 'MOVEA.L ',0
+00001989= 4D 4F 56 45 51 20 00     122  pmoveq dc.b 'MOVEQ ',0
+00001990= 4D 4F 56 45 4D 00        123  pmovem dc.b 'MOVEM',0
+00001996= 4E 4F 50 20 00           124  pnop dc.b 'NOP ',0
+0000199B= 41 44 44 00              125  padd dc.b 'ADD',0
+0000199F= 41 44 44 41 00           126  padda dc.b 'ADDA',0
+000019A4= 41 44 44 49 00           127  paddi dc.b 'ADDI',0
+000019A9= 41 44 44 51 00           128  paddq dc.b 'ADDQ',0
+000019AE= 4D 55 4C 53 2E 57 ...    129  pmuls dc.b 'MULS.W ',0
+000019B6= 4C 45 41 20 00           130  plea dc.b 'LEA ',0
+000019BB                           131  
+000019BB= 44 00                    132  dregister dc.b 'D',0
+000019BD= 41 00                    133  aregister dc.b 'A',0
+000019BF= 23 00                    134  hashtag dc.b '#',0
+000019C1= 24 00                    135  dollarsign dc.b '$',0
+000019C3= 2C 00                    136  comma dc.b ',',0
+000019C5= 2E 42 20 00              137  dotb dc.b '.B ',0
+000019C9= 2E 57 20 00              138  dotw dc.b '.W ',0
+000019CD= 2E 4C 20 00              139  dotl dc.b '.L ',0
+000019D1= 28 00                    140  leftp dc.b '(',0
+000019D3= 29 00                    141  rightp dc.b ')',0
+000019D5= 2B 00                    142  plus dc.b   '+',0
+000019D7= 2D 00                    143  minus dc.b '-',0
+000019D9                           144  
+000019D9= 41 53 00                 145  pas dc.b 'AS',0
+000019DC= 4C 53 00                 146  pls dc.b 'LS',0
+000019DF= 52 4F 00                 147  pro dc.b 'RO',0
+000019E2= 52 00                    148  pright dc.b 'R',0
+000019E4= 4C 00                    149  pleft dc.b 'L',0
+000019E6= 20 00                    150  space dc.b ' ',0
+000019E8                           151  
+000019E8  B67C 00FF                152  convert CMP #$FF,D3
+000019EC  6700 0046                153         BEQ exit
+000019F0  B67C 0030                154         CMP #$30,D3
+000019F4  6D00 001E                155         BLT fake
+000019F8  B67C 0046                156         CMP #$46,D3
+000019FC  6E00 0016                157         BGT fake
+00001A00  B67C 0039                158         CMP #$39,D3
+00001A04  6F00 0016                159         BLE not
+00001A08  B67C 0041                160         CMP #$41,D3
+00001A0C  6C00 000E                161         BGE not
+00001A10  6000 0002                162         BRA fake
+00001A14  163C 00DD                163  fake   MOVE.B #$DD,D3
+00001A18  6000 001A                164         BRA exit
+00001A1C  B67C 0040                165  not    CMP #$40,D3
+00001A20  6E00 000C                166         BGT let
+00001A24  0483 00000030            167         SUBI.L #$30,D3
+00001A2A  6000 0008                168         BRA exit
+00001A2E  0483 00000037            169  let    SUBI.L #$37,D3
+00001A34  1283                     170  exit   MOVE.B D3,(A1)
+00001A36  4E75                     171         RTS
+00001A38                           172         
+00001A38  323C 000D                173  newline MOVE #$0D,D1
+00001A3C  303C 0006                174          MOVE #6,D0
+00001A40  4E4F                     175          TRAP #15
+00001A42  323C 000A                176          MOVE #$0A,D1
+00001A46  303C 0006                177          MOVE #6,D0
+00001A4A  4E4F                     178          TRAP #15
+00001A4C  4E75                     179          RTS
+00001A4E                           180  
+00001A4E                           181  print        
+00001A4E  B67C 00DD                182  loop    CMP #$DD,D3
+00001A52  6700 001A                183          BEQ done1
+00001A56  B67C 00FF                184          CMP #$FF,D3
+00001A5A  6700 0016                185          BEQ done2
+00001A5E  1203                     186          MOVE.B D3,D1
+00001A60  143C 0010                187          MOVE.B #16,D2
+00001A64  103C 000F                188          MOVE.B #15,D0
+00001A68  4E4F                     189          TRAP #15
+00001A6A  161B                     190          MOVE.B (A3)+,D3
+00001A6C  60E0                     191          BRA loop
+00001A6E  4EB8 1A38                192  done1   JSR newline
+00001A72  4E75                     193  done2   RTS
+00001A74                           194  
+00001A74                           195          
+00001A74  43F8 18FC                196  printdata LEA data,A1
+00001A78  103C 000E                197          MOVE.B #14,D0
+00001A7C  4E4F                     198          TRAP #15
+00001A7E  4E75                     199          RTS 
+00001A80                           200  
+00001A80                           201  *First level jump table        
+00001A80  384B                     202  checkop MOVEA.W A3,A4
+00001A82                           203  
+00001A82  1824                     204          MOVE.B -(A4),D4
+00001A84                           205          
+00001A84  B87C 0000                206          CMP #$00,D4
+00001A88  6700 0090                207          BEQ ADDI_
+00001A8C                           208          
+00001A8C  B87C 0001                209          CMP #$01,D4
+00001A90  6700 0140                210          BEQ MOVE_B
+00001A94                           211          
+00001A94  B87C 0002                212          CMP #$02,D4
+00001A98  6700 01EA                213          BEQ MOVE_L
+00001A9C                           214          
+00001A9C  B87C 0003                215          CMP #$03,D4
+00001AA0  6700 0182                216          BEQ MOVE_W
+00001AA4                           217          
+00001AA4  B87C 0004                218          CMP #$04,D4
+00001AA8  6700 002C                219          BEQ code0100
+00001AAC                           220          
+00001AAC  B87C 0005                221          CMP #$05,D4
+00001AB0  6700 0232                222          BEQ ADDQ_
+00001AB4                           223          
+00001AB4  B87C 0007                224          CMP #$07,D4
+00001AB8  6700 02E8                225          BEQ MOVEQ_
+00001ABC                           226          
+00001ABC  B87C 000C                227          CMP #$0C,D4
+00001AC0  6700 0044                228          BEQ code1100
+00001AC4                           229          
+00001AC4  B87C 000D                230          CMP #$0D,D4
+00001AC8  6700 03A4                231          BEQ ADD_
+00001ACC                           232          
+00001ACC  B87C 000E                233          CMP #$0E,D4
+00001AD0  6700 0558                234          BEQ rl_check
+00001AD4                           235  
+00001AD4  4E75                     236          RTS
+00001AD6                           237          
+00001AD6  4EB9 000026BE            238  code0100 JSR IsolateRegisters
+00001ADC                           239          
+00001ADC                           240          *LEA check
+00001ADC  1838 1911                241          MOVE.B (destm),D4
+00001AE0  B87C 0007                242          CMP #$7,D4
+00001AE4  6700 0494                243          BEQ LEA_
+00001AE8                           244  
+00001AE8                           245          *NOP check
+00001AE8  384B                     246          MOVEA.W A3,A4
+00001AEA  524C                     247          ADDQ #1,A4
+00001AEC  181C                     248          MOVE.B (A4)+,D4
+00001AEE  B87C 0007                249          CMP #$07,D4
+00001AF2  6600 000C                250          BNE next0100
+00001AF6  1814                     251          MOVE.B (A4),D4
+00001AF8  B87C 0001                252          CMP #$01,D4
+00001AFC  6700 04E0                253          BEQ NOP_   
+00001B00                           254          
+00001B00                           255          *Else always check MOVEM
+00001B00  6000 0324                256  next0100 BRA MOVEM_
+00001B04                           257          
+00001B04  4E75                     258          RTS
+00001B06                           259          
+00001B06                           260  code1100
+00001B06                           261          *MULS check
+00001B06  4EB9 000026BE            262          JSR IsolateRegisters
+00001B0C  1838 1911                263          MOVE.B (destm),D4
+00001B10  B87C 0007                264          CMP #$7,D4
+00001B14  6700 0312                265          BEQ MULS_
+00001B18                           266          
+00001B18                           267          *Branch to AND otherwise
+00001B18                           268  
+00001B18  4E75                     269          RTS
+00001B1A                           270  
+00001B1A  4EB9 000026BE            271  ADDI_   JSR IsolateRegisters
+00001B20                           272  
+00001B20                           273          *Check valid opcode
+00001B20  1A38 1910                274          MOVE.B (sourcem),D5
+00001B24  BA7C 0001                275          CMP #$1,D5
+00001B28  6700 00A6                276          BEQ addiexit
+00001B2C  1A38 1910                277          MOVE.B (sourcem),D5
+00001B30  BA7C 0007                278          CMP #$7,D5
+00001B34  6600 000E                279          BNE addin0
+00001B38  1A38 190E                280          MOVE.B (source),D5
+00001B3C  BA7C 0004                281          CMP #$4,D5
+00001B40  6700 008E                282          BEQ addiexit
+00001B44  384B                     283  addin0  MOVEA.W A3,A4
+00001B46  1A1C                     284          MOVE.B (A4)+,D5
+00001B48  BA7C 0006                285          CMP #$6,D5
+00001B4C  6600 0082                286          BNE addiexit
+00001B50                           287          
+00001B50                           288          *Isolate size
+00001B50  1A14                     289          MOVE.B (A4),D5
+00001B52  1E3C 001C                290          MOVE.B #28,D7
+00001B56  EFAD                     291          LSL.L D7,D5
+00001B58  5447                     292          ADDQ #2,D7
+00001B5A  EEAD                     293          LSR.L D7,D5
+00001B5C                           294          
+00001B5C                           295          *Check size
+00001B5C  BA7C 0000                296          CMP #$0,D5
+00001B60  6600 000E                297          BNE addin1
+00001B64  4BF8 19C5                298          LEA dotb,A5
+00001B68  183C 0002                299          MOVE.B #2,D4
+00001B6C  6000 0026                300          BRA prnaddi
+00001B70  BA7C 0001                301  addin1  CMP #$1,D5
+00001B74  6600 000E                302          BNE addin2
+00001B78  4BF8 19C9                303          LEA dotw,A5
+00001B7C  183C 0004                304          MOVE.B #4,D4
+00001B80  6000 0012                305          BRA prnaddi
+00001B84  BA7C 0002                306  addin2  CMP #$2,D5
+00001B88  6600 0046                307          BNE addiexit
+00001B8C  4BF8 19CD                308          LEA dotl,A5
+00001B90  183C 0008                309          MOVE.B #8,D4
+00001B94                           310          
+00001B94                           311          *Print
+00001B94  43F8 19A4                312  prnaddi LEA paddi,A1
+00001B98  103C 000E                313          MOVE.B #14,D0
+00001B9C  4E4F                     314          TRAP #15
+00001B9E  43D5                     315          LEA (A5),A1
+00001BA0  4E4F                     316          TRAP #15
+00001BA2  1C3C 0007                317          MOVE.B #$7,D6
+00001BA6  1A3C 0004                318          MOVE.B #$4,D5
+00001BAA  4EB9 00002524            319          JSR EA
+00001BB0  43F8 19C3                320          LEA comma,A1
+00001BB4  103C 000E                321          MOVE.B #14,D0
+00001BB8  4E4F                     322          TRAP #15
+00001BBA  1A38 190E                323          MOVE.B (source),D5
+00001BBE  1C38 1910                324          MOVE.B (sourcem),D6
+00001BC2  4EB9 00002524            325          JSR EA
+00001BC8                           326  
+00001BC8  1A3C 00CC                327          MOVE.B #$CC,D5
+00001BCC  584B                     328          ADDQ #4,A3
+00001BCE  1613                     329          MOVE.B (A3),D3
+00001BD0                           330          *JSR newline
+00001BD0  4E75                     331  addiexit RTS
+00001BD2                           332          
+00001BD2  4EB9 000026BE            333  MOVE_B  JSR IsolateRegisters
+00001BD8                           334                  
+00001BD8                           335          *Check valid opcode
+00001BD8  1E3C 0001                336          MOVE.B #$1,D7    
+00001BDC  1C38 1911                337          MOVE.B (destm),D6
+00001BE0  BE46                     338          CMP D6,D7
+00001BE2  6700 003E                339          BEQ mbexit
+00001BE6                           340          
+00001BE6                           341          *Print
+00001BE6  43F8 195F                342          LEA pmove_b,A1
+00001BEA  103C 000E                343          MOVE.B #14,D0
+00001BEE  4E4F                     344          TRAP #15
+00001BF0  4245                     345          CLR D5
+00001BF2  4246                     346          CLR D6
+00001BF4  1A38 190E                347          MOVE.B (source),D5
+00001BF8  1C38 1910                348          MOVE.B (sourcem),D6
+00001BFC  4EB9 00002524            349          JSR EA
+00001C02  43F8 19C3                350          LEA comma,A1
+00001C06  103C 000E                351          MOVE.B #14,D0
+00001C0A  4E4F                     352          TRAP #15
+00001C0C  1A38 190F                353          MOVE.B (dest),D5
+00001C10  1C38 1911                354          MOVE.B (destm),D6
+00001C14  4EB9 00002524            355          JSR EA
+00001C1A                           356          
+00001C1A  1A3C 00CC                357          MOVE.B #$CC,D5
+00001C1E  584B                     358          ADDQ #4,A3
+00001C20  1613                     359          MOVE.B (A3),D3
+00001C22                           360          *JSR newline
+00001C22  4E75                     361  mbexit  RTS
+00001C24                           362  
+00001C24  4EB9 000026BE            363  MOVE_W  JSR IsolateRegisters
+00001C2A                           364          
+00001C2A                           365          *Check movea or move
+00001C2A  1E3C 0001                366          MOVE.B #$1,D7
+00001C2E  1C38 1911                367          MOVE.B (destm),D6
+00001C32  BE46                     368          CMP D6,D7
+00001C34  6600 0010                369          BNE printnaw
+00001C38  43F8 1977                370          LEA pmovea_w,A1
+00001C3C  103C 000E                371          MOVE.B #14,D0
+00001C40  4E4F                     372          TRAP #15
+00001C42  6000 000C                373          BRA printmw
+00001C46                           374          
+00001C46                           375          *Print
+00001C46  43F8 1967                376  printnaw LEA pmove_w,A1
+00001C4A  103C 000E                377          MOVE.B #14,D0
+00001C4E  4E4F                     378          TRAP #15
+00001C50  4245                     379  printmw CLR D5
+00001C52  4246                     380          CLR D6
+00001C54  1A38 190E                381          MOVE.B (source),D5
+00001C58  1C38 1910                382          MOVE.B (sourcem),D6
+00001C5C  4EB9 00002524            383          JSR EA
+00001C62  43F8 19C3                384          LEA comma,A1
+00001C66  103C 000E                385          MOVE.B #14,D0
+00001C6A  4E4F                     386          TRAP #15
+00001C6C  1A38 190F                387          MOVE.B (dest),D5
+00001C70  1C38 1911                388          MOVE.B (destm),D6
+00001C74  4EB9 00002524            389          JSR EA
+00001C7A                           390          
+00001C7A  1A3C 00CC                391          MOVE.B #$CC,D5
+00001C7E  584B                     392          ADDQ #4,A3
+00001C80  1613                     393          MOVE.B (A3),D3
+00001C82                           394          *JSR newline
+00001C82  4E75                     395  mwexit  RTS
+00001C84                           396  
+00001C84  4EB9 000026BE            397  MOVE_L  JSR IsolateRegisters 
+00001C8A                           398          
+00001C8A                           399          *Check movea or move
+00001C8A  1E3C 0001                400          MOVE.B #$1,D7
+00001C8E  1C38 1911                401          MOVE.B (destm),D6
+00001C92  BE46                     402          CMP D6,D7
+00001C94  6600 0010                403          BNE printnal
+00001C98  43F8 1980                404          LEA pmovea_l,A1
+00001C9C  103C 000E                405          MOVE.B #14,D0
+00001CA0  4E4F                     406          TRAP #15
+00001CA2  6000 000C                407          BRA printml
+00001CA6                           408          
+00001CA6                           409          *Print
+00001CA6  43F8 196F                410  printnal LEA pmove_l,A1
+00001CAA  103C 000E                411          MOVE.B #14,D0
+00001CAE  4E4F                     412          TRAP #15
+00001CB0  4245                     413  printml CLR D5
+00001CB2  4246                     414          CLR D6
+00001CB4  1A38 190E                415          MOVE.B (source),D5
+00001CB8  1C38 1910                416          MOVE.B (sourcem),D6
+00001CBC  4EB9 00002524            417          JSR EA
+00001CC2  43F8 19C3                418          LEA comma,A1
+00001CC6  103C 000E                419          MOVE.B #14,D0
+00001CCA  4E4F                     420          TRAP #15
+00001CCC  1A38 190F                421          MOVE.B (dest),D5
+00001CD0  1C38 1911                422          MOVE.B (destm),D6
+00001CD4  4EB9 00002524            423          JSR EA
+00001CDA                           424          
+00001CDA  1A3C 00CC                425          MOVE.B #$CC,D5
+00001CDE  584B                     426          ADDQ #4,A3
+00001CE0  1613                     427          MOVE.B (A3),D3
+00001CE2                           428          *JSR newline
+00001CE2  4E75                     429  mlexit  RTS
+00001CE4                           430  
+00001CE4  4EB9 000026BE            431  ADDQ_   JSR IsolateRegisters
+00001CEA                           432          
+00001CEA                           433          *Check valid source mode
+00001CEA  1A38 1910                434          MOVE.B (sourcem),D5
+00001CEE  BA7C 0007                435          CMP #$7,D5
+00001CF2  6600 000E                436          BNE addqn0
+00001CF6  1A38 190E                437          MOVE.B (source),D5
+00001CFA  BA7C 0004                438          CMP #$4,D5
+00001CFE  6700 00A0                439          BEQ addqexit
+00001D02                           440  
+00001D02                           441          *Check 8th bit for 0
+00001D02  384B                     442  addqn0  MOVEA.W A3,A4
+00001D04  1A1C                     443          MOVE.B (A4)+,D5
+00001D06  7E20                     444          MOVE.L #32,D7
+00001D08  EFA5                     445          ASL.L D7,D5
+00001D0A  EEA5                     446          ASR.L D7,D5
+00001D0C  BA7C 0001                447          CMP #$1,D5
+00001D10  6700 008E                448          BEQ addqexit
+00001D14                           449  
+00001D14                           450          *Isolate size
+00001D14  1A14                     451          MOVE.B (A4),D5
+00001D16  1E3C 001C                452          MOVE.B #28,D7
+00001D1A  EFAD                     453          LSL.L D7,D5
+00001D1C  5447                     454          ADDQ #2,D7
+00001D1E  EEAD                     455          LSR.L D7,D5
+00001D20                           456          
+00001D20                           457          *Check size
+00001D20  BA7C 0000                458          CMP #$0,D5
+00001D24  6600 000E                459          BNE addq1
+00001D28  4BF8 19C5                460          LEA dotb,A5
+00001D2C  183C 0002                461          MOVE.B #2,D4
+00001D30  6000 0026                462          BRA prnaddq
+00001D34  BA7C 0001                463  addq1  CMP #$1,D5
+00001D38  6600 000E                464          BNE addq2
+00001D3C  4BF8 19C9                465          LEA dotw,A5
+00001D40  183C 0004                466          MOVE.B #4,D4
+00001D44  6000 0012                467          BRA prnaddq
+00001D48  BA7C 0002                468  addq2  CMP #$2,D5
+00001D4C  6600 0052                469          BNE addqexit
+00001D50  4BF8 19CD                470          LEA dotl,A5
+00001D54  183C 0008                471          MOVE.B #8,D4
+00001D58                           472          
+00001D58                           473          *Print
+00001D58  43F8 19A9                474  prnaddq LEA paddq,A1
+00001D5C  103C 000E                475          MOVE.B #14,D0
+00001D60  4E4F                     476          TRAP #15
+00001D62  43D5                     477          LEA (A5),A1
+00001D64  4E4F                     478          TRAP #15
+00001D66  43F8 19BF                479          LEA hashtag,A1
+00001D6A  4E4F                     480          TRAP #15
+00001D6C  43F8 19C1                481          LEA dollarsign,A1
+00001D70  4E4F                     482          TRAP #15
+00001D72  1238 190F                483          MOVE.B dest,D1
+00001D76  143C 0010                484          MOVE.B #16,D2
+00001D7A  103C 000F                485          MOVE.B #15,D0
+00001D7E  4E4F                     486          TRAP #15
+00001D80  43F8 19C3                487          LEA comma,A1
+00001D84  103C 000E                488          MOVE.B #14,D0
+00001D88  4E4F                     489          TRAP #15
+00001D8A  1A38 190E                490          MOVE.B (source),D5
+00001D8E  1C38 1910                491          MOVE.B (sourcem),D6
+00001D92  4EB9 00002524            492          JSR EA
+00001D98                           493  
+00001D98  1A3C 00CC                494          MOVE.B #$CC,D5
+00001D9C  584B                     495          ADDQ #4,A3
+00001D9E  1613                     496          MOVE.B (A3),D3
+00001DA0                           497          *JSR newline
+00001DA0  4E75                     498  addqexit RTS
+00001DA2                           499  
+00001DA2  4245                     500  MOVEQ_  CLR D5
+00001DA4  4246                     501          CLR D6
+00001DA6  4247                     502          CLR D7
+00001DA8                           503  
+00001DA8                           504          *Check 8th bit for 0
+00001DA8  524C                     505          ADDQ #1,A4
+00001DAA  1A14                     506          MOVE.B (A4),D5
+00001DAC  7E1F                     507          MOVE.L #31,D7
+00001DAE  EFA5                     508          ASL.L D7,D5
+00001DB0  EEA5                     509          ASR.L D7,D5
+00001DB2  BA7C 0001                510          CMP #$1,D5
+00001DB6  6700 006C                511          BEQ mqexit
+00001DBA                           512          
+00001DBA                           513          *Get data register
+00001DBA  1A1C                     514          MOVE.B (A4)+,D5
+00001DBC  1E3C 001C                515          MOVE.B #28,D7
+00001DC0  EFAD                     516          LSL.L D7,D5
+00001DC2  5247                     517          ADDQ #1,D7
+00001DC4  EEAD                     518          LSR.L D7,D5
+00001DC6  11C5 190F                519          MOVE.B D5,dest
+00001DCA                           520          
+00001DCA                           521          *Get and print value
+00001DCA  43F8 1989                522          LEA pmoveq,A1
+00001DCE  103C 000E                523          MOVE.B #14,D0
+00001DD2  4E4F                     524          TRAP #15
+00001DD4  43F8 19BF                525          LEA hashtag,A1
+00001DD8  4E4F                     526          TRAP #15
+00001DDA  43F8 19C1                527          LEA dollarsign,A1
+00001DDE  4E4F                     528          TRAP #15
+00001DE0  121C                     529          MOVE.B (A4)+,D1
+00001DE2  B27C 0000                530          CMP #$0,D1
+00001DE6  6700 000C                531          BEQ mqpnext
+00001DEA  143C 0010                532          MOVE.B #16,D2
+00001DEE  103C 000F                533          MOVE.B #15,D0
+00001DF2  4E4F                     534          TRAP #15
+00001DF4  1214                     535  mqpnext MOVE.B (A4),D1
+00001DF6  143C 0010                536          MOVE.B #16,D2
+00001DFA  103C 000F                537          MOVE.B #15,D0
+00001DFE  4E4F                     538          TRAP #15
+00001E00  43F8 19C3                539          LEA comma,A1
+00001E04  103C 000E                540          MOVE.B #14,D0
+00001E08  4E4F                     541          TRAP #15
+00001E0A                           542          *Print data register
+00001E0A  4245                     543          CLR D5
+00001E0C  1C3C 0000                544          MOVE.B #$0,D6
+00001E10  1A38 190F                545          MOVE.B (dest),D5
+00001E14  4EB9 00002524            546          JSR EA
+00001E1A                           547          
+00001E1A  4245                     548          CLR D5
+00001E1C  1A3C 00CC                549          MOVE.B #$CC,D5
+00001E20  584B                     550          ADDQ #4,A3
+00001E22  1613                     551          MOVE.B (A3),D3
+00001E24  4E75                     552  mqexit  RTS
+00001E26                           553  
+00001E26                           554  MOVEM_  *Checks to confirm valid opcode
+00001E26                           555  *        MOVE.B (destm),D5
+00001E26                           556  *        CMP #$2,D5
+00001E26                           557  *        BEQ mvmn1
+00001E26                           558  *        CMP #$3,D5
+00001E26                           559  *        BNE mvmexit
+00001E26                           560  *        
+00001E26                           561  *        *More checks to confirm valid opcode
+00001E26                           562  *mvmn1   MOVE.B (dest),D5
+00001E26                           563  *        CMP #$4,D5
+00001E26                           564  *        BEQ mvmn2
+00001E26                           565  *        CMP #$6,D5
+00001E26                           566  *        BNE mvmexit
+00001E26                           567  *        
+00001E26                           568  *        *Get direction
+00001E26                           569  *        *Get size
+00001E26                           570  *        
+00001E26                           571  *        *Checks to confirm valid EA mode
+00001E26                           572  *mvmn2   MOVE.B (sourcem),D5
+00001E26                           573  *        
+00001E26                           574  *
+00001E26                           575  *        MOVE.B #$CC,D5
+00001E26                           576  *        ADDQ #4,A3
+00001E26                           577  *        MOVE.B (A3),D3
+00001E26  4E75                     578  mvmexit RTS
+00001E28                           579  
+00001E28                           580  MULS_   *Check for invalid opcode
+00001E28  1A38 1910                581          MOVE.B (sourcem),D5
+00001E2C  BA7C 0001                582          CMP #$1,D5
+00001E30  6700 003A                583          BEQ mulsexit
+00001E34                           584  
+00001E34                           585          *Print MULS
+00001E34  43F8 19AE                586          LEA pmuls,A1
+00001E38  103C 000E                587          MOVE.B #14,D0
+00001E3C  4E4F                     588          TRAP #15
+00001E3E  1C38 1910                589          MOVE.B (sourcem),D6
+00001E42  1A38 190E                590          MOVE.B (source),D5
+00001E46  4EB9 00002524            591          JSR EA
+00001E4C  43F8 19C3                592          LEA comma,A1
+00001E50  103C 000E                593          MOVE.B #14,D0
+00001E54  4E4F                     594          TRAP #15
+00001E56  1C3C 0000                595          MOVE.B #$0,D6
+00001E5A  1A38 190F                596          MOVE.B (dest),D5
+00001E5E  4EB9 00002524            597          JSR EA
+00001E64                           598  
+00001E64  1A3C 00CC                599          MOVE.B #$CC,D5
+00001E68  584B                     600          ADDQ #4,A3
+00001E6A  1613                     601          MOVE.B (A3),D3
+00001E6C                           602          *JSR newline
+00001E6C  4E75                     603  mulsexit RTS
+00001E6E                           604  
+00001E6E  4EB9 000026BE            605  ADD_    JSR IsolateRegisters
+00001E74  1A38 1911                606          MOVE.B (destm),D5
+00001E78                           607          
+00001E78                           608          *EA + Dn to Dn
+00001E78  BA7C 0000                609          CMP #$0,D5
+00001E7C  6600 001C                610          BNE addn1
+00001E80                           611          *Check for address register with size byte
+00001E80  1C38 1910                612          MOVE.B (sourcem),D6
+00001E84  BC7C 0001                613          CMP #$1,D6
+00001E88  6700 00EE                614          BEQ addexit
+00001E8C  4BF8 19C5                615          LEA dotb,A5
+00001E90  11FC 0000 1911           616          MOVE.B #$0,destm
+00001E96  6000 009C                617          BRA printadd
+00001E9A  BA7C 0001                618  addn1   CMP #$1,D5
+00001E9E  6600 0010                619          BNE addn2
+00001EA2  4BF8 19C9                620          LEA dotw,A5
+00001EA6  11FC 0000 1911           621          MOVE.B #$0,destm
+00001EAC  6000 0086                622          BRA printadd
+00001EB0  BA7C 0002                623  addn2   CMP #$2,D5
+00001EB4  6600 0010                624          BNE addn3
+00001EB8  4BF8 19CD                625          LEA dotl,A5
+00001EBC  11FC 0000 1911           626          MOVE.B #$0,destm
+00001EC2  6000 0070                627          BRA printadd
+00001EC6                           628          
+00001EC6                           629          *Dn + EA to EA
+00001EC6  BA7C 0004                630  addn3   CMP #$4,D5
+00001ECA  6600 0010                631          BNE addn4
+00001ECE  4BF8 19C5                632          LEA dotb,A5
+00001ED2  11FC 0000 1911           633          MOVE.B #$0,destm
+00001ED8  6000 005A                634          BRA printadd
+00001EDC  BA7C 0005                635  addn4   CMP #$5,D5
+00001EE0  6600 0010                636          BNE addn5
+00001EE4  4BF8 19C9                637          LEA dotw,A5
+00001EE8  11FC 0000 1911           638          MOVE.B #$0,destm
+00001EEE  6000 0044                639          BRA printadd
+00001EF2  BA7C 0006                640  addn5   CMP #$6,D5
+00001EF6  6600 0010                641          BNE addn6
+00001EFA  4BF8 19CD                642          LEA dotl,A5
+00001EFE  11FC 0000 1911           643          MOVE.B #$0,destm
+00001F04  6000 002E                644          BRA printadd
+00001F08                           645          
+00001F08                           646          *ADDA
+00001F08  BA7C 0003                647  addn6   CMP #$3,D5
+00001F0C  6600 0010                648          BNE addn7
+00001F10  4BF8 19C9                649          LEA dotw,A5
+00001F14  11FC 0001 1911           650          MOVE.B #$1,destm
+00001F1A  6000 0010                651          BRA printadda
+00001F1E  4BF8 19CD                652  addn7   LEA dotl,A5
+00001F22  11FC 0001 1911           653          MOVE.B #$1,destm
+00001F28  6000 0002                654          BRA printadda
+00001F2C                           655          
+00001F2C  43F8 199F                656  printadda LEA padda,A1
+00001F30  6000 0006                657          BRA addrest
+00001F34  43F8 199B                658  printadd LEA padd,A1
+00001F38  103C 000E                659  addrest MOVE.B #14,D0
+00001F3C  4E4F                     660          TRAP #15
+00001F3E  43D5                     661          LEA (A5),A1
+00001F40  103C 000E                662          MOVE.B #14,D0
+00001F44  4E4F                     663          TRAP #15
+00001F46  4245                     664          CLR D5
+00001F48  4246                     665          CLR D6
+00001F4A  1A38 190E                666          MOVE.B (source),D5
+00001F4E  1C38 1910                667          MOVE.B (sourcem),D6
+00001F52  4EB9 00002524            668          JSR EA
+00001F58  43F8 19C3                669          LEA comma,A1
+00001F5C  103C 000E                670          MOVE.B #14,D0
+00001F60  4E4F                     671          TRAP #15
+00001F62  1A38 190F                672          MOVE.B (dest),D5
+00001F66  1C38 1911                673          MOVE.B (destm),D6
+00001F6A  4EB9 00002524            674          JSR EA
+00001F70                           675  
+00001F70  1A3C 00CC                676          MOVE.B #$CC,D5
+00001F74  584B                     677          ADDQ #4,A3
+00001F76  1613                     678          MOVE.B (A3),D3
+00001F78                           679          *JSR newline
+00001F78  4E75                     680  addexit RTS
+00001F7A                           681  
+00001F7A                           682  LEA_    *Check for valid source mode
+00001F7A  4245                     683          CLR D5
+00001F7C  1A38 1910                684          MOVE.B (sourcem),D5
+00001F80  BA7C 0002                685          CMP #$2,D5
+00001F84  6700 001E                686          BEQ leaprnt
+00001F88  BA7C 0007                687          CMP #$7,D5
+00001F8C  6600 004E                688          BNE leaexit
+00001F90  1A38 190E                689          MOVE.B (source),D5
+00001F94  BA7C 0000                690          CMP #$0,D5
+00001F98  6700 000A                691          BEQ leaprnt
+00001F9C  BA7C 0001                692          CMP #$1,D5
+00001FA0  6600 003A                693          BNE leaexit
+00001FA4                           694  
+00001FA4                           695          *Print
+00001FA4  43F8 19B6                696  leaprnt LEA plea,A1
+00001FA8  103C 000E                697          MOVE.B #14,D0
+00001FAC  4E4F                     698          TRAP #15
+00001FAE  1C38 1910                699          MOVE.B (sourcem),D6
+00001FB2  1A38 190E                700          MOVE.B (source),D5
+00001FB6  4EB9 00002524            701          JSR EA
+00001FBC  43F8 19C3                702          LEA comma,A1
+00001FC0  103C 000E                703          MOVE.B #14,D0
+00001FC4  4E4F                     704          TRAP #15
+00001FC6  1C3C 0001                705          MOVE.B #$1,D6
+00001FCA  1A38 190F                706          MOVE.B (dest),D5
+00001FCE  4EB9 00002524            707          JSR EA
+00001FD4                           708          
+00001FD4  1A3C 00CC                709          MOVE.B #$CC,D5
+00001FD8  584B                     710          ADDQ #4,A3
+00001FDA  1613                     711          MOVE.B (A3),D3
+00001FDC                           712          *JSR newline
+00001FDC  4E75                     713  leaexit RTS
+00001FDE                           714  
+00001FDE  384B                     715  NOP_    MOVEA.W A3,A4
+00001FE0  1824                     716          MOVE.B -(A4),D4
+00001FE2                           717  
+00001FE2  181C                     718          MOVE.B (A4)+,D4
+00001FE4  B87C 0004                719          CMP #$04,D4
+00001FE8  6700 0006                720          BEQ n1NOP
+00001FEC  6000 003A                721          BRA notNOP
+00001FF0  181C                     722  n1NOP   MOVE.B (A4)+,D4
+00001FF2  B87C 000E                723          CMP #$0E,D4
+00001FF6  6700 0006                724          BEQ n2NOP
+00001FFA  6000 002C                725          BRA notNOP
+00001FFE  181C                     726  n2NOP   MOVE.B (A4)+,D4
+00002000  B87C 0007                727          CMP #$07,D4
+00002004  6700 0006                728          BEQ n3NOP
+00002008  6000 001E                729          BRA notNOP
+0000200C  1814                     730  n3NOP   MOVE.B (A4),D4
+0000200E  B87C 0001                731          CMP #$01,D4
+00002012  6600 0014                732          BNE notNOP
+00002016                           733  
+00002016  43F8 1996                734          LEA pnop,A1
+0000201A  103C 000E                735          MOVE.B #14,D0
+0000201E  4E4F                     736          TRAP #15
+00002020                           737          
+00002020  1A3C 00CC                738          MOVE.B #$CC,D5
+00002024  584B                     739          ADDQ #4,A3
+00002026  1613                     740          MOVE.B (A3),D3
+00002028                           741          *JSR newline
+00002028  4E75                     742  notNOP  RTS
+0000202A                           743  
+0000202A                           744  *============================ASL, ASR, LSL, LSR, ROL, ROR================================
+0000202A                           745  
+0000202A                           746  rl_check    *for registers
+0000202A  4284                     747      CLR.L D4
+0000202C  544C                     748      ADDQ #$2,A4 *gets digits 7->4 into D4
+0000202E  1814                     749      MOVE.B (A4),D4
+00002030                           750      
+00002030  E48C                     751      LSR.L #2,D4 *isolates the 7->6 spot, if it == 11 branch
+00002032  B87C 0003                752      CMP #$3,D4
+00002036  6700 0028                753      BEQ rl_check2   *branch to check2 for ea
+0000203A                           754      
+0000203A  4284                     755      CLR.L D4
+0000203C  1814                     756      MOVE.B (A4),D4  *7->4 back into D4
+0000203E  1E3C 001F                757      MOVE.B #31,D7
+00002042  EFAC                     758      LSL.L D7,D4 *isolates 4
+00002044  EEAC                     759      LSR.L D7,D4
+00002046  E38C                     760      LSL.L #1,D4 *preps to get added
+00002048  4282                     761      CLR.L D2
+0000204A  1404                     762      MOVE.B D4,D2    *stores 4 in D4
+0000204C                           763  
+0000204C  524C                     764      ADDQ #$1,A4 *SHIFT gets digits 3->0 into D4
+0000204E  1814                     765      MOVE.B (A4),D4
+00002050  E68C                     766      LSR.L #3,D4 *isolate 3
+00002052                           767      
+00002052  D802                     768      ADD.B D2,D4 *gets 4->3 in D4
+00002054                           769      
+00002054  B87C 0002                770      CMP #$2,D4  *if 4->3 == 2, bad
+00002058  6700 04C8                771      BEQ not_rl_shift 
+0000205C                           772      
+0000205C  6000 00C2                773      BRA rl_shift
+00002060                           774      
+00002060                           775  rl_check2   *ea check
+00002060  4284                     776      CLR.L D4
+00002062  534C                     777      SUBQ #1,A4  *shift 11->8
+00002064  1814                     778      MOVE.B (A4),D4  *get 11->8
+00002066                           779      
+00002066  E28C                     780      LSR.L #1,D4 *shift right to isolate 11->9
+00002068                           781      
+00002068  B87C 0002                782      CMP #$2,D4  *cant be 010
+0000206C  6700 04B4                783      BEQ not_rl_shift
+00002070                           784      
+00002070  B87C 0004                785      CMP #$4,D4  cant be 100
+00002074  6700 04AC                786      BEQ not_rl_shift
+00002078                           787      
+00002078  B87C 0005                788      CMP #$5,D4
+0000207C  6700 04A4                789      BEQ not_rl_shift 
+00002080                           790      
+00002080  B87C 0006                791      CMP #$6,D4
+00002084  6700 049C                792      BEQ not_rl_shift 
+00002088                           793      
+00002088  B87C 0007                794      CMP #$7,D4
+0000208C  6700 0494                795      BEQ not_rl_shift
+00002090                           796      
+00002090  4284                     797      CLR.L D4
+00002092  524C                     798      ADDQ #$1,A4 *gets digits 7->4 into D4
+00002094  1814                     799      MOVE.B (A4),D4
+00002096                           800  
+00002096  1E3C 001E                801      MOVE.B #30,D7
+0000209A  EFAC                     802      LSL.L D7,D4 *isolate 5->4
+0000209C  EEAC                     803      LSR.L D7,D4
+0000209E                           804  
+0000209E  E38C                     805      LSL.L #1,D4 *prep to add 3 onto it
+000020A0  4282                     806      CLR.L D2
+000020A2  2404                     807      MOVE.L D4,D2    *store 5->4 on D2 to read
+000020A4                           808  
+000020A4  4284                     809      CLR.L D4
+000020A6  524C                     810      ADDQ #1,A4  *gets 3->0
+000020A8  1814                     811      MOVE.B (A4),D4
+000020AA                           812      
+000020AA  E68C                     813      LSR.L #3,D4 *isolate 3
+000020AC                           814  
+000020AC  D484                     815      ADD.L D4,D2 *add shifted spot 5->4 to spot 3, D2 = 5->3
+000020AE                           816      
+000020AE  B47C 0000                817      CMP #$0,D2
+000020B2  6700 046E                818      BEQ not_rl_shift
+000020B6                           819      
+000020B6  B47C 0001                820      CMP #$1,D2
+000020BA  6700 0466                821      BEQ not_rl_shift
+000020BE                           822      
+000020BE  B47C 0005                823      CMP #$5,D2
+000020C2  6700 045E                824      BEQ not_rl_shift
+000020C6                           825      
+000020C6  B47C 0006                826      CMP #$6,D2
+000020CA  6700 0456                827      BEQ not_rl_shift
+000020CE                           828      
+000020CE  B47C 0002                829      CMP #$2,D2
+000020D2  6700 004C                830      BEQ rl_shift
+000020D6                           831      
+000020D6  B47C 0003                832      CMP #$3,D2
+000020DA  6700 0044                833      BEQ rl_shift
+000020DE                           834      
+000020DE  B47C 0004                835      CMP #$4,D2
+000020E2  6700 003C                836      BEQ rl_shift
+000020E6                           837      
+000020E6                           838      *D4 equals 111 CONTINUE
+000020E6                           839      
+000020E6  4284                     840      CLR.L D4
+000020E8  524C                     841      ADDQ #1,A4  * spot -1 first bit after 3->0
+000020EA  1814                     842      MOVE.B (A4),D4
+000020EC  B87C 00FF                843      CMP #$FF,D4
+000020F0  6700 0430                844      BEQ not_rl_shift
+000020F4  B87C 00DD                845      CMP #$DD,D4
+000020F8  6700 0428                846      BEQ not_rl_shift
+000020FC                           847      
+000020FC  534C                     848      SUBQ #1,A4  *gets range 3->0
+000020FE                           849      
+000020FE  4284                     850      CLR.L D4
+00002100                           851      *ADDQ #3,A4  *get range 3->0
+00002100  1814                     852      MOVE.B (A4),D4  *load 3->0 onto D4
+00002102                           853      
+00002102  4287                     854      CLR.L D7
+00002104  1E3C 001D                855      MOVE.B #29,D7
+00002108  EFAC                     856      LSL.L D7,D4     *isolate 2->0 on D4
+0000210A  EEAC                     857      LSR.L D7,D4
+0000210C                           858  
+0000210C                           859      *SUBQ #3,A4  *reset counter back to 15->12
+0000210C                           860      
+0000210C  B87C 0000                861      CMP #$0,D4
+00002110  6700 000E                862      BEQ rl_shift
+00002114                           863      
+00002114  B87C 0001                864      CMP #$1,D4
+00002118  6700 0006                865      BEQ rl_shift
+0000211C                           866      
+0000211C  6000 0404                867      BRA not_rl_shift
+00002120                           868  
+00002120                           869  rl_shift    *is it memory or register shift?
+00002120  574C                     870      SUBQ #3,A4  *reset counter back to 15->12
+00002122  4284                     871      CLR.L D4
+00002124  544C                     872      ADDQ #$2,A4 *gets digits 7->4 into D4
+00002126  1814                     873      MOVE.B (A4),D4
+00002128                           874  
+00002128  E48C                     875      LSR.L #2,D4 *isolates the 7->6 spot
+0000212A  B87C 0003                876      CMP #$3,D4
+0000212E  6600 0248                877      BNE rl_shift_b  *branch to part b(register)if necessary
+00002132                           878  
+00002132                           879  *continue with ea shift
+00002132                           880  
+00002132  4284                     881      CLR.L D4
+00002134  534C                     882      SUBQ #1,A4  *gets 11->8 number
+00002136  1814                     883      MOVE.B (A4),D4
+00002138                           884  
+00002138  E28C                     885      LSR.L #1,D4 *isolate 11->9
+0000213A                           886  
+0000213A                           887      
+0000213A  B87C 0000                888      CMP #$0,D4  *if 11->9 == 000, jump to print AS
+0000213E  6700 003E                889      BEQ print_as_a
+00002142                           890  
+00002142  B87C 0001                891      CMP #$1,D4  *if 11->9 == 001, jump to print LS
+00002146  6700 0044                892      BEQ print_ls_a
+0000214A                           893  
+0000214A  B87C 0002                894      CMP #$2,D4  *if 11->9 == 010, bad op 
+0000214E  6700 03D2                895      BEQ not_rl_shift 
+00002152                           896  
+00002152  B87C 0003                897      CMP #$3,D4  *if 11->9 == 011. jump to print RO
+00002156  6700 0042                898      BEQ print_ro_a
+0000215A                           899  
+0000215A                           900      *could probably just BRA not_rl_shift
+0000215A                           901      
+0000215A  B87C 0004                902      CMP #$4,D4  *if 11->9 == 100, bad op 
+0000215E  6700 03C2                903      BEQ not_rl_shift
+00002162                           904  
+00002162  B87C 0005                905      CMP #$5,D4  *if 11->9 == 101, bad op 
+00002166  6700 03BA                906      BEQ not_rl_shift 
+0000216A                           907  
+0000216A  B87C 0006                908      CMP #$6,D4  *if 11->9 == 110, bad op 
+0000216E  6700 03B2                909      BEQ not_rl_shift 
+00002172                           910  
+00002172  B87C 0007                911      CMP #$7,D4  *if 11->9 == 111, bad op 
+00002176  6700 03AA                912      BEQ not_rl_shift
+0000217A                           913  
+0000217A  6000 03A6                914      BRA not_rl_shift
+0000217E                           915  
+0000217E                           916  print_as_a  *print AS
+0000217E                           917  
+0000217E  43F8 19D9                918      LEA pas,A1
+00002182  103C 000E                919      MOVE.B #14,D0
+00002186  4E4F                     920      TRAP #15
+00002188  6000 001E                921      BRA rl_shift_a1
+0000218C                           922  
+0000218C                           923  print_ls_a  *print LS
+0000218C  43F8 19DC                924      LEA pls,A1
+00002190  103C 000E                925      MOVE.B #14,D0
+00002194  4E4F                     926      TRAP #15
+00002196  6000 0010                927      BRA rl_shift_a1
+0000219A                           928  
+0000219A                           929  print_ro_a  *print RO
+0000219A  43F8 19DF                930      LEA pro,A1
+0000219E  103C 000E                931      MOVE.B #14,D0
+000021A2  4E4F                     932      TRAP #15
+000021A4  6000 0002                933      BRA rl_shift_a1
+000021A8                           934  
+000021A8                           935  rl_shift_a1 *ea
+000021A8  4284                     936      CLR.L D4
+000021AA  1814                     937      MOVE.B (A4),D4  *gets 11->8 into D4
+000021AC  1E3C 001F                938      MOVE.B #31,D7
+000021B0  EFAC                     939      LSL.L D7,D4 *isolate 8
+000021B2  EEAC                     940      LSR.L D7,D4
+000021B4                           941      
+000021B4  B87C 0000                942      CMP #$0,D4  *if spot 8 == 0,go to print R
+000021B8  6700 000E                943      BEQ print_r_a
+000021BC                           944      
+000021BC  B87C 0001                945      CMP #$1,D4  *if spot 8 == 1, go to print L
+000021C0  6700 0014                946      BEQ print_l_a
+000021C4                           947  
+000021C4  6000 035C                948      BRA not_rl_shift
+000021C8                           949  
+000021C8                           950  print_r_a   *print R
+000021C8  43F8 19E2                951      LEA pright,A1
+000021CC  103C 000E                952      MOVE.B #14,D0
+000021D0  4E4F                     953      TRAP #15
+000021D2  6000 0010                954      BRA rl_shift_a2
+000021D6                           955  
+000021D6                           956  print_l_a   *print L
+000021D6  43F8 19E4                957      LEA pleft,A1
+000021DA  103C 000E                958      MOVE.B #14,D0
+000021DE  4E4F                     959      TRAP #15
+000021E0  6000 0002                960      BRA rl_shift_a2
+000021E4                           961  
+000021E4                           962  rl_shift_a2 *register shift
+000021E4  4284                     963      CLR.L D4
+000021E6  524C                     964      ADDQ #$1,A4 *gets digits 7->4 into D4
+000021E8  1814                     965      MOVE.B (A4),D4
+000021EA                           966  
+000021EA  1E3C 001E                967      MOVE.B #30,D7
+000021EE  EFAC                     968      LSL.L D7,D4 *isolate 5->4
+000021F0  EEAC                     969      LSR.L D7,D4
+000021F2                           970  
+000021F2  E38C                     971      LSL.L #1,D4 *prep to add 3 onto it
+000021F4  4282                     972      CLR.L D2
+000021F6  2404                     973      MOVE.L D4,D2    *store 5->4 on D2 to read
+000021F8                           974  
+000021F8  4284                     975      CLR.L D4
+000021FA  524C                     976      ADDQ #1,A4  *gets 3->0
+000021FC  1814                     977      MOVE.B (A4),D4
+000021FE                           978      
+000021FE  E68C                     979      LSR.L #3,D4 *isolate 3
+00002200                           980  
+00002200  D484                     981      ADD.L D4,D2 *add shifted spot 5->4 to spot 3, D2 = 5->3
+00002202                           982  
+00002202  4284                     983      CLR.L D4
+00002204                           984  
+00002204  1814                     985      MOVE.B (A4),D4  *load 3->0 on D4
+00002206  1E3C 001D                986      MOVE.B #29,D7
+0000220A  EFAC                     987      LSL.L D7,D4 *isolate 2->0
+0000220C  EEAC                     988      LSR.L D7,D4
+0000220E  4281                     989      CLR.L D1    *load 2->0 into D1
+00002210  1204                     990      MOVE.B D4,D1
+00002212                           991  
+00002212  43F8 19E6                992      LEA space,A1
+00002216  103C 000E                993      MOVE.B #14,D0
+0000221A  4E4F                     994      TRAP #15
+0000221C                           995  
+0000221C  B47C 0002                996      CMP #$2,D2  *if == 010, print (An)
+00002220  6700 001E                997      BEQ print_pAnp_rl_a
+00002224                           998  
+00002224  B47C 0003                999      CMP #$3,D2  *if == 011, print (An)+
+00002228  6700 0046               1000      BEQ print_pAnpplus_rl_a
+0000222C                          1001  
+0000222C  B47C 0004               1002      CMP #$4,D2  *if == 100, print -(An)
+00002230  6700 0078               1003      BEQ print_minuspAnp_rl_a
+00002234                          1004  
+00002234  B47C 0007               1005      CMP #$7,D2  *if == 111, print ea
+00002238  6700 00AA               1006      BEQ print_ea_rl_a
+0000223C                          1007      
+0000223C  6000 02E4               1008      BRA not_rl_shift
+00002240                          1009  
+00002240                          1010  print_pAnp_rl_a     *print (An)
+00002240  43F8 19D1               1011      LEA leftp,A1
+00002244  103C 000E               1012      MOVE.B #14,D0
+00002248  4E4F                    1013      TRAP #15
+0000224A                          1014  
+0000224A  43F8 19BD               1015      LEA aregister,A1
+0000224E  103C 000E               1016      MOVE.B #14,D0
+00002252  4E4F                    1017      TRAP #15
+00002254                          1018      
+00002254  103C 0003               1019      MOVE.B #3,D0
+00002258  4E4F                    1020      TRAP #15
+0000225A                          1021      
+0000225A  43F8 19D3               1022      LEA rightp,A1
+0000225E  103C 000E               1023      MOVE.B #14,D0
+00002262  4E4F                    1024      TRAP #15
+00002264                          1025  
+00002264  1A3C 00CC               1026      MOVE.B #$CC,D5      *DONE
+00002268  584B                    1027      ADDQ #4,A3
+0000226A  1613                    1028      MOVE.B (A3),D3
+0000226C  6000 F7CA               1029      BRA newline
+00002270                          1030  
+00002270                          1031  print_pAnpplus_rl_a *print (An)+
+00002270  43F8 19D1               1032      LEA leftp,A1
+00002274  103C 000E               1033      MOVE.B #14,D0
+00002278  4E4F                    1034      TRAP #15
+0000227A                          1035  
+0000227A  43F8 19BD               1036      LEA aregister,A1
+0000227E  103C 000E               1037      MOVE.B #14,D0
+00002282  4E4F                    1038      TRAP #15
+00002284                          1039      
+00002284  103C 0003               1040      MOVE.B #3,D0
+00002288  4E4F                    1041      TRAP #15
+0000228A                          1042  
+0000228A  43F8 19D3               1043      LEA rightp,A1
+0000228E  103C 000E               1044      MOVE.B #14,D0
+00002292  4E4F                    1045      TRAP #15
+00002294                          1046  
+00002294  43F8 19D5               1047      LEA plus,A1
+00002298  103C 000E               1048      MOVE.B #14,D0
+0000229C  4E4F                    1049      TRAP #15
+0000229E                          1050  
+0000229E  1A3C 00CC               1051      MOVE.B #$CC,D5      *DONE
+000022A2  584B                    1052      ADDQ #4,A3
+000022A4  1613                    1053      MOVE.B (A3),D3
+000022A6  6000 F790               1054      BRA newline
+000022AA                          1055  
+000022AA                          1056  print_minuspAnp_rl_a    *print -(An)
+000022AA                          1057  
+000022AA  43F8 19D7               1058      LEA minus,A1
+000022AE  103C 000E               1059      MOVE.B #14,D0
+000022B2  4E4F                    1060      TRAP #15
+000022B4                          1061  
+000022B4  43F8 19D1               1062      LEA leftp,A1
+000022B8  103C 000E               1063      MOVE.B #14,D0
+000022BC  4E4F                    1064      TRAP #15
+000022BE                          1065  
+000022BE  43F8 19BD               1066      LEA aregister,A1
+000022C2  103C 000E               1067      MOVE.B #14,D0
+000022C6  4E4F                    1068      TRAP #15
+000022C8                          1069      
+000022C8  103C 0003               1070      MOVE.B #3,D0
+000022CC  4E4F                    1071      TRAP #15
+000022CE                          1072  
+000022CE  43F8 19D3               1073      LEA rightp,A1
+000022D2  103C 000E               1074      MOVE.B #14,D0
+000022D6  4E4F                    1075      TRAP #15
+000022D8                          1076  
+000022D8  1A3C 00CC               1077      MOVE.B #$CC,D5      *DONE
+000022DC  584B                    1078      ADDQ #4,A3
+000022DE  1613                    1079      MOVE.B (A3),D3
+000022E0  6000 F756               1080      BRA newline
+000022E4                          1081      
+000022E4                          1082  print_ea_rl_a   *print ea 
+000022E4  B27C 0002               1083      CMP #$2,D1
+000022E8  6700 0238               1084      BEQ not_rl_shift
+000022EC                          1085  
+000022EC  B27C 0003               1086      CMP #$3,D1
+000022F0  6700 0230               1087      BEQ not_rl_shift
+000022F4                          1088  
+000022F4  B27C 0004               1089      CMP #$4,D1
+000022F8  6700 0228               1090      BEQ not_rl_shift
+000022FC                          1091  
+000022FC  B27C 0005               1092      CMP #$5,D1
+00002300  6700 0220               1093      BEQ not_rl_shift
+00002304                          1094  
+00002304  B27C 0006               1095      CMP #$6,D1
+00002308  6700 0218               1096      BEQ not_rl_shift
+0000230C                          1097  
+0000230C  B27C 0007               1098      CMP #$7,D1
+00002310  6700 0210               1099      BEQ not_rl_shift
+00002314                          1100  
+00002314  43F8 19C1               1101      LEA dollarsign,A1
+00002318  103C 000E               1102      MOVE.B #14,D0
+0000231C  4E4F                    1103      TRAP #15
+0000231E                          1104  
+0000231E  4284                    1105      CLR.L D4
+00002320  524C                    1106      ADDQ #1,A4
+00002322  1814                    1107      MOVE.B (A4),D4
+00002324  B87C 00FF               1108      CMP #$FF,D4
+00002328  6700 01F8               1109      BEQ not_rl_shift
+0000232C  B87C 00DD               1110      CMP #$DD,D4
+00002330  6700 01F0               1111      BEQ not_rl_shift
+00002334                          1112      
+00002334  6000 0002               1113      BRA print_rl_ea
+00002338                          1114      
+00002338                          1115  print_rl_ea
+00002338  4284                    1116      CLR.L D4
+0000233A  1814                    1117      MOVE.B (A4),D4
+0000233C  4282                    1118      CLR.L D2
+0000233E  143C 0010               1119      MOVE.B #16,D2
+00002342  4281                    1120      CLR.L D1
+00002344  2204                    1121      MOVE.L D4,D1    *print extra ea from D4
+00002346  103C 000F               1122      MOVE.B #15,D0
+0000234A  4E4F                    1123      TRAP #15
+0000234C                          1124      
+0000234C  524C                    1125      ADDQ #1,A4
+0000234E  1814                    1126      MOVE.B (A4),D4
+00002350                          1127      
+00002350  524B                    1128      ADDQ #1,A3
+00002352                          1129      
+00002352  B87C 00FF               1130      CMP #$FF,D4
+00002356  6700 0014               1131      BEQ rl_shift_done
+0000235A  B87C 00DD               1132      CMP #$DD,D4
+0000235E  66D8                    1133      BNE print_rl_ea
+00002360                          1134  
+00002360  1A3C 00CC               1135      MOVE.B #$CC,D5  *DONE
+00002364  584B                    1136      ADDQ #4,A3
+00002366  1613                    1137      MOVE.B (A3),D3
+00002368  6000 F6CE               1138      BRA newline
+0000236C                          1139      
+0000236C                          1140  rl_shift_done
+0000236C  1A3C 00CC               1141      MOVE.B #$CC,D5  *DONE
+00002370  584B                    1142      ADDQ #4,A3
+00002372  1613                    1143      MOVE.B (A3),D3
+00002374  6000 F6C2               1144      BRA newline
+00002378                          1145  
+00002378                          1146  rl_shift_b  *=====================PART B FOR MEMORY LOCATIONS==================
+00002378  4284                    1147      CLR.L D4
+0000237A  1814                    1148      MOVE.B (A4),D4  *7->4 back into D4
+0000237C  1E3C 001F               1149      MOVE.B #31,D7
+00002380  EFAC                    1150      LSL.L D7,D4 *isolates 4
+00002382  EEAC                    1151      LSR.L D7,D4
+00002384  E38C                    1152      LSL.L #1,D4 *preps to get added
+00002386  4282                    1153      CLR.L D2
+00002388  1404                    1154      MOVE.B D4,D2    *stores 4 in D4
+0000238A                          1155  
+0000238A  524C                    1156      ADDQ #$1,A4 *SHIFT gets digits 3->0 into D4
+0000238C  1814                    1157      MOVE.B (A4),D4
+0000238E  E68C                    1158      LSR.L #3,D4 *isolate 3
+00002390                          1159      
+00002390  D802                    1160      ADD.B D2,D4 *gets 4->3
+00002392                          1161      
+00002392  B87C 0000               1162      CMP #$0,D4
+00002396  6700 0016               1163      BEQ print_as_b
+0000239A                          1164  
+0000239A  B87C 0001               1165      CMP #$1,D4
+0000239E  6700 001C               1166      BEQ print_ls_b
+000023A2                          1167  
+000023A2  B87C 0003               1168      CMP #$3,D4
+000023A6  6700 0022               1169      BEQ print_ro_b
+000023AA                          1170  
+000023AA  6000 0176               1171      BRA not_rl_shift
+000023AE                          1172      
+000023AE                          1173  print_as_b      *print AS
+000023AE  43F8 19D9               1174      LEA pas,A1
+000023B2  103C 000E               1175      MOVE.B #14,D0
+000023B6  4E4F                    1176      TRAP #15
+000023B8  6000 001E               1177      BRA rl_shift_b1
+000023BC                          1178  
+000023BC                          1179  print_ls_b      *print LS
+000023BC  43F8 19DC               1180      LEA pls,A1
+000023C0  103C 000E               1181      MOVE.B #14,D0
+000023C4  4E4F                    1182      TRAP #15
+000023C6  6000 0010               1183      BRA rl_shift_b1
+000023CA                          1184  
+000023CA                          1185  print_ro_b  *print RO
+000023CA  43F8 19DF               1186      LEA pro,A1
+000023CE  103C 000E               1187      MOVE.B #14,D0
+000023D2  4E4F                    1188      TRAP #15
+000023D4  6000 0002               1189      BRA rl_shift_b1
+000023D8                          1190  
+000023D8                          1191  rl_shift_b1
+000023D8  554C                    1192      SUBQ #2,A4      *SHIFT
+000023DA  1814                    1193      MOVE.B (A4),D4  *gets 11->8 into D4
+000023DC  1E3C 001F               1194      MOVE.B #31,D7
+000023E0  EFAC                    1195      LSL.L D7,D4     *isolate 8
+000023E2  EEAC                    1196      LSR.L D7,D4
+000023E4                          1197  
+000023E4  B87C 0000               1198      CMP #$0,D4      *if spot 8 == 0, print R
+000023E8  6700 000E               1199      BEQ print_r_b
+000023EC                          1200  
+000023EC  B87C 0001               1201      CMP #$1,D4      *if spot 8 == 1, print L
+000023F0  6700 0014               1202      BEQ print_l_b
+000023F4                          1203  
+000023F4  6000 012C               1204      BRA not_rl_shift
+000023F8                          1205  
+000023F8                          1206  print_r_b   *print R
+000023F8  43F8 19E2               1207      LEA pright,A1
+000023FC  103C 000E               1208      MOVE.B #14,D0
+00002400  4E4F                    1209      TRAP #15
+00002402  6000 0010               1210      BRA rl_shift_b2
+00002406                          1211  
+00002406                          1212  print_l_b   *print L
+00002406  43F8 19E4               1213      LEA pleft,A1
+0000240A  103C 000E               1214      MOVE.B #14,D0
+0000240E  4E4F                    1215      TRAP #15
+00002410  6000 0002               1216      BRA rl_shift_b2
+00002414                          1217  
+00002414                          1218  rl_shift_b2
+00002414  524C                    1219      ADDQ #1,A4      *SHIFT
+00002416  1814                    1220      MOVE.B (A4),D4  *gets 7->4 into D4
+00002418  E48C                    1221      LSR.L #2,D4     *isolate 7->6
+0000241A                          1222  
+0000241A  B87C 0000               1223      CMP #$0,D4
+0000241E  6700 0016               1224      BEQ print_byte_rl_b
+00002422                          1225  
+00002422  B87C 0001               1226      CMP #$1,D4
+00002426  6700 001C               1227      BEQ print_word_rl_b
+0000242A                          1228  
+0000242A  B87C 0002               1229      CMP #$2,D4
+0000242E  6700 0022               1230      BEQ print_long_rl_b
+00002432                          1231      
+00002432  6000 00EE               1232      BRA not_rl_shift
+00002436                          1233  
+00002436                          1234  print_byte_rl_b *print .B
+00002436  43F8 19C5               1235      LEA dotb,A1
+0000243A  103C 000E               1236      MOVE.B #14,D0
+0000243E  4E4F                    1237      TRAP #15
+00002440  6000 001E               1238      BRA rl_shift_b3
+00002444                          1239  
+00002444                          1240  print_word_rl_b *print .W
+00002444  43F8 19C9               1241      LEA dotw,A1
+00002448  103C 000E               1242      MOVE.B #14,D0
+0000244C  4E4F                    1243      TRAP #15
+0000244E  6000 0010               1244      BRA rl_shift_b3
+00002452                          1245  
+00002452                          1246  print_long_rl_b *print .L
+00002452  43F8 19CD               1247      LEA dotl,A1
+00002456  103C 000E               1248      MOVE.B #14,D0
+0000245A  4E4F                    1249      TRAP #15
+0000245C  6000 0002               1250      BRA rl_shift_b3
+00002460                          1251  
+00002460                          1252  rl_shift_b3
+00002460  4284                    1253      CLR.L D4
+00002462  1814                    1254      MOVE.B (A4),D4  *gets 7->4 into D4
+00002464  E28C                    1255      LSR.L #1,D4     *isolate 5
+00002466  1E3C 001F               1256      MOVE.B #31,D7
+0000246A  EFAC                    1257      LSL.L D7,D4
+0000246C  EEAC                    1258      LSR.L D7,D4
+0000246E                          1259  
+0000246E  B87C 0000               1260      CMP #$0,D4
+00002472  6700 000E               1261      BEQ print_number_rl_b
+00002476                          1262  
+00002476  B87C 0001               1263      CMP #$1,D4
+0000247A  6700 0056               1264      BEQ print_d_rl_b
+0000247E                          1265  
+0000247E  6000 00A2               1266      BRA not_rl_shift
+00002482                          1267  
+00002482                          1268  print_number_rl_b   *prints #number
+00002482  534C                    1269      SUBQ #1,A4      *SHIFT gets 11->8 into D4
+00002484  1814                    1270      MOVE.B (A4),D4
+00002486                          1271  
+00002486  E28C                    1272      LSR.L #1,D4     *isolates 11->9
+00002488  4281                    1273      CLR.L D1
+0000248A  2204                    1274      MOVE.L D4,D1
+0000248C                          1275      
+0000248C  43F8 19BF               1276      LEA hashtag,A1  *print #
+00002490  103C 000E               1277      MOVE.B #14,D0
+00002494  4E4F                    1278      TRAP #15
+00002496                          1279  
+00002496  103C 0003               1280      MOVE.B #3,D0    *print number in D1
+0000249A  4E4F                    1281      TRAP #15
+0000249C                          1282      
+0000249C  43F8 19C3               1283      LEA comma,A1    *print ,
+000024A0  103C 000E               1284      MOVE.B #14,D0
+000024A4  4E4F                    1285      TRAP #15
+000024A6                          1286  
+000024A6  43F8 19BB               1287      LEA dregister,A1    *print D
+000024AA  103C 000E               1288      MOVE.B #14,D0
+000024AE  4E4F                    1289      TRAP #15
+000024B0                          1290  
+000024B0  544C                    1291      ADDQ #2,A4      *SHIFT get 3->0 into D4
+000024B2  1814                    1292      MOVE.B (A4),D4
+000024B4                          1293  
+000024B4  4281                    1294      CLR.L D1
+000024B6  1E3C 001D               1295      MOVE.B #29,D7
+000024BA  EFAC                    1296      LSL.L D7,D4     *isolate 2->0
+000024BC  EEAC                    1297      LSR.L D7,D4
+000024BE  2204                    1298      MOVE.L D4,D1
+000024C0                          1299  
+000024C0  103C 0003               1300      MOVE.B #3,D0    *print number in D1, dregister
+000024C4  4E4F                    1301      TRAP #15
+000024C6                          1302  
+000024C6  1A3C 00CC               1303      MOVE.B #$CC,D5  *DONE
+000024CA  584B                    1304      ADDQ #4,A3
+000024CC  1613                    1305      MOVE.B (A3),D3
+000024CE  6000 F568               1306      BRA newline
+000024D2                          1307  
+000024D2                          1308  print_d_rl_b
+000024D2  534C                    1309      SUBQ #1,A4      *SHIFT gets 11->8 into D4
+000024D4  1814                    1310      MOVE.B (A4),D4
+000024D6                          1311  
+000024D6  E28C                    1312      LSR.L #1,D4     *isolates 11->9
+000024D8  4281                    1313      CLR.L D1
+000024DA  2204                    1314      MOVE.L D4,D1
+000024DC                          1315      
+000024DC  43F8 19BB               1316      LEA dregister,A1    *print D
+000024E0  103C 000E               1317      MOVE.B #14,D0
+000024E4  4E4F                    1318      Trap #15
+000024E6                          1319  
+000024E6  103C 0003               1320      MOVE.B #3,D0    *print number in D1
+000024EA  4E4F                    1321      TRAP #15
+000024EC                          1322  
+000024EC  43F8 19C3               1323      LEA comma,A1    *print ,
+000024F0  103C 000E               1324      MOVE.B #14,D0
+000024F4  4E4F                    1325      Trap #15
+000024F6                          1326  
+000024F6  43F8 19BB               1327      LEA dregister,A1    *print D
+000024FA  103C 000E               1328      MOVE.B #14,D0
+000024FE  4E4F                    1329      TRAP #15
+00002500                          1330  
+00002500  544C                    1331      ADDQ #2,A4      *get 3->0 into D4
+00002502  1814                    1332      MOVE.B (A4),D4
+00002504                          1333  
+00002504  4281                    1334      CLR.L D1
+00002506  1E3C 001D               1335      MOVE.B #29,D7
+0000250A  EFAC                    1336      LSL.L D7,D4     *isolate 2->0
+0000250C  EEAC                    1337      LSR.L D7,D4
+0000250E  2204                    1338      MOVE.L D4,D1
+00002510                          1339  
+00002510  103C 0003               1340      MOVE.B #3,D0    *print number in D1, dregister
+00002514  4E4F                    1341      TRAP #15
+00002516                          1342  
+00002516  1A3C 00CC               1343      MOVE.B #$CC,D5  *DONE
+0000251A  584B                    1344      ADDQ #4,A3
+0000251C  1613                    1345      MOVE.B (A3),D3
+0000251E  6000 F518               1346      BRA  newline
+00002522                          1347  
+00002522                          1348  not_rl_shift
+00002522  4E75                    1349      RTS
+00002524                          1350  *===================================================================================
+00002524                          1351  
+00002524                          1352  
+00002524                          1353  *Pre-conditions:    
+00002524                          1354  *D6 needs to contain addressing mode
+00002524                          1355  *D5 needs to contain EA/register number          
+00002524  BC7C 0000               1356  EA      CMP #$0,D6
+00002528  6700 0032               1357          BEQ EA_000
+0000252C                          1358          
+0000252C  BC7C 0001               1359          CMP #$1,D6
+00002530  6700 0042               1360          BEQ EA_001
+00002534                          1361          
+00002534  BC7C 0002               1362          CMP #$2,D6
+00002538  6700 0052               1363          BEQ EA_010
+0000253C                          1364          
+0000253C  BC7C 0003               1365          CMP #$3,D6
+00002540  6700 0072               1366          BEQ EA_011
+00002544                          1367          
+00002544  BC7C 0004               1368          CMP #$4,D6
+00002548  6700 0098               1369          BEQ EA_100
+0000254C                          1370          
+0000254C  BC7C 0007               1371          CMP #$7,D6
+00002550  6700 00BE               1372          BEQ EA_111
+00002554                          1373          
+00002554  11FC 00EE 1913          1374          MOVE.B #$EE,badop
+0000255A  4E75                    1375          RTS
+0000255C                          1376  
+0000255C  43F8 19BB               1377  EA_000  LEA dregister,A1
+00002560  103C 000E               1378          MOVE.B #14,D0
+00002564  4E4F                    1379          TRAP #15
+00002566  1205                    1380          MOVE.B D5,D1
+00002568  143C 0010               1381          MOVE.B #16,D2
+0000256C  103C 000F               1382          MOVE.B #15,D0
+00002570  4E4F                    1383          TRAP #15
+00002572  4E75                    1384          RTS
+00002574                          1385          
+00002574  43F8 19BD               1386  EA_001  LEA aregister,A1
+00002578  103C 000E               1387          MOVE.B #14,D0
+0000257C  4E4F                    1388          TRAP #15
+0000257E  1205                    1389          MOVE.B D5,D1
+00002580  143C 0010               1390          MOVE.B #16,D2
+00002584  103C 000F               1391          MOVE.B #15,D0
+00002588  4E4F                    1392          TRAP #15
+0000258A  4E75                    1393          RTS
+0000258C                          1394  
+0000258C  43F8 19D1               1395  EA_010  LEA leftp,A1
+00002590  103C 000E               1396          MOVE.B #14,D0
+00002594  4E4F                    1397          TRAP #15
+00002596  43F8 19BD               1398          LEA aregister,A1
+0000259A  4E4F                    1399          TRAP #15
+0000259C  1205                    1400          MOVE.B D5,D1
+0000259E  143C 0010               1401          MOVE.B #16,D2
+000025A2  103C 000F               1402          MOVE.B #15,D0
+000025A6  4E4F                    1403          TRAP #15
+000025A8  43F8 19D3               1404          LEA rightp,A1
+000025AC  103C 000E               1405          MOVE.B #14,D0
+000025B0  4E4F                    1406          TRAP #15
+000025B2  4E75                    1407          RTS
+000025B4                          1408  
+000025B4  43F8 19D1               1409  EA_011  LEA leftp,A1
+000025B8  103C 000E               1410          MOVE.B #14,D0
+000025BC  4E4F                    1411          TRAP #15
+000025BE  43F8 19BD               1412          LEA aregister,A1
+000025C2  4E4F                    1413          TRAP #15
+000025C4  1205                    1414          MOVE.B D5,D1
+000025C6  143C 0010               1415          MOVE.B #16,D2
+000025CA  103C 000F               1416          MOVE.B #15,D0
+000025CE  4E4F                    1417          TRAP #15
+000025D0  43F8 19D3               1418          LEA rightp,A1
+000025D4  103C 000E               1419          MOVE.B #14,D0
+000025D8  4E4F                    1420          TRAP #15
+000025DA  43F8 19D5               1421          LEA plus,A1
+000025DE  4E4F                    1422          TRAP #15
+000025E0  4E75                    1423          RTS 
+000025E2                          1424  
+000025E2  43F8 19D7               1425  EA_100  LEA minus,A1
+000025E6  103C 000E               1426          MOVE.B #14,D0
+000025EA  4E4F                    1427          TRAP #15
+000025EC  43F8 19D1               1428          LEA leftp,A1
+000025F0  4E4F                    1429          TRAP #15
+000025F2  43F8 19BD               1430          LEA aregister,A1
+000025F6  4E4F                    1431          TRAP #15
+000025F8  1205                    1432          MOVE.B D5,D1
+000025FA  143C 0010               1433          MOVE.B #16,D2
+000025FE  103C 000F               1434          MOVE.B #15,D0
+00002602  4E4F                    1435          TRAP #15
+00002604  43F8 19D3               1436          LEA rightp,A1
+00002608  103C 000E               1437          MOVE.B #14,D0
+0000260C  4E4F                    1438          TRAP #15
+0000260E  4E75                    1439          RTS    
+00002610                          1440  
+00002610  BA7C 0000               1441  EA_111  CMP #$0,D5
+00002614  6700 001A               1442          BEQ ABSword
+00002618                          1443          
+00002618  BA7C 0001               1444          CMP #$1,D5
+0000261C  6700 003E               1445          BEQ ABSlong
+00002620                          1446          
+00002620  BA7C 0004               1447          CMP #$4,D5
+00002624  6700 0062               1448          BEQ Immediate
+00002628                          1449          
+00002628  11FC 00EE 1913          1450          MOVE.B #$EE,badop
+0000262E  4E75                    1451          RTS 
+00002630                          1452          
+00002630  43F8 19C1               1453  ABSword LEA dollarsign,A1
+00002634  103C 000E               1454          MOVE.B #14,D0
+00002638  4E4F                    1455          TRAP #15
+0000263A  384B                    1456          MOVEA.W A3,A4
+0000263C  564C                    1457          ADDQ #3,A4
+0000263E  4244                    1458          CLR D4
+00002640  4245                    1459          CLR D5
+00002642  183C 0004               1460          MOVE.B #4,D4
+00002646  143C 0010               1461          MOVE.B #16,D2
+0000264A  103C 000F               1462          MOVE.B #15,D0
+0000264E  5245                    1463  abswlp  ADDQ #1,D5
+00002650  121C                    1464          MOVE.B (A4)+,D1
+00002652  4E4F                    1465          TRAP #15
+00002654  BA44                    1466          CMP D4,D5
+00002656  66F6                    1467          BNE abswlp
+00002658  D7C4                    1468          ADDA.L D4,A3
+0000265A  4E75                    1469          RTS
+0000265C                          1470          
+0000265C  43F8 19C1               1471  ABSlong LEA dollarsign,A1
+00002660  103C 000E               1472          MOVE.B #14,D0
+00002664  4E4F                    1473          TRAP #15
+00002666  384B                    1474          MOVEA.W A3,A4
+00002668  564C                    1475          ADDQ #3,A4
+0000266A  4244                    1476          CLR D4
+0000266C  4245                    1477          CLR D5
+0000266E  183C 0008               1478          MOVE.B #8,D4
+00002672  143C 0010               1479          MOVE.B #16,D2
+00002676  103C 000F               1480          MOVE.B #15,D0
+0000267A  5245                    1481  absllp  ADDQ #1,D5
+0000267C  121C                    1482          MOVE.B (A4)+,D1
+0000267E  4E4F                    1483          TRAP #15
+00002680  BA44                    1484          CMP D4,D5
+00002682  66F6                    1485          BNE absllp
+00002684  D7C4                    1486          ADDA.L D4,A3
+00002686  4E75                    1487          RTS
+00002688                          1488          
+00002688  43F8 19BF               1489  Immediate LEA hashtag,A1
+0000268C  103C 000E               1490          MOVE.B #14,D0
+00002690  4E4F                    1491          TRAP #15
+00002692  43F8 19C1               1492          LEA dollarsign,A1
+00002696  4E4F                    1493          TRAP #15
+00002698  384B                    1494          MOVEA.W A3,A4
+0000269A  564C                    1495          ADDQ #3,A4
+0000269C  4246                    1496          CLR D6
+0000269E  4245                    1497          CLR D5
+000026A0  183C 0008               1498          MOVE.B #8,D4
+000026A4  143C 0010               1499          MOVE.B #16,D2
+000026A8  103C 000F               1500          MOVE.B #15,D0
+000026AC  5245                    1501  absilp  ADDQ #1,D5
+000026AE  121C                    1502          MOVE.B (A4)+,D1
+000026B0  4E4F                    1503          TRAP #15
+000026B2  1C14                    1504          MOVE.B (A4),D6
+000026B4  BC7C 00DD               1505          CMP #$DD,D6
+000026B8  66F2                    1506          BNE absilp
+000026BA  D7C5                    1507          ADDA.L D5,A3
+000026BC  4E75                    1508          RTS
+000026BE                          1509  
+000026BE                          1510  IsolateRegisters
+000026BE  4245                    1511          CLR D5
+000026C0  4246                    1512          CLR D6
+000026C2  4247                    1513          CLR D7
+000026C4  384B                    1514          MOVEA.W A3,A4
+000026C6  534C                    1515          SUBQ #1,A4
+000026C8                          1516          
+000026C8                          1517          *Isolate and get source mode
+000026C8  544C                    1518          ADDQ #2,A4
+000026CA  1A14                    1519          MOVE.B (A4),D5
+000026CC  524C                    1520          ADDQ #1,A4
+000026CE  1C14                    1521          MOVE.B (A4),D6
+000026D0  1E3C 001E               1522          MOVE.B #30,D7
+000026D4  EFAD                    1523          LSL.L D7,D5
+000026D6  5307                    1524          SUBI.B #1,D7
+000026D8  EEAD                    1525          LSR.L D7,D5
+000026DA  E60E                    1526          LSR.B #$3,D6
+000026DC  DA06                    1527          ADD.B D6,D5
+000026DE  11C5 1910               1528          MOVE.B D5,sourcem
+000026E2                          1529          
+000026E2                          1530          *Isolate and get source register
+000026E2  384B                    1531          MOVEA.W A3,A4
+000026E4  544C                    1532          ADDQ #2,A4
+000026E6  1A14                    1533          MOVE.B (A4),D5
+000026E8  1E3C 001D               1534          MOVE.B #29,D7
+000026EC  EFAD                    1535          LSL.L D7,D5
+000026EE  EEAD                    1536          LSR.L D7,D5
+000026F0  11C5 190E               1537          MOVE.B D5,source
+000026F4                          1538          
+000026F4                          1539          *Isolate and get destination mode
+000026F4  384B                    1540          MOVEA.W A3,A4
+000026F6  1A14                    1541          MOVE.B (A4),D5
+000026F8  524C                    1542          ADDQ #1,A4
+000026FA  1C14                    1543          MOVE.B (A4),D6
+000026FC  1E3C 001F               1544          MOVE.B #31,D7
+00002700  EFAD                    1545          LSL.L D7,D5
+00002702  5507                    1546          SUBI.B #2,D7
+00002704  EEAD                    1547          LSR.L D7,D5
+00002706  E40E                    1548          LSR.B #$2,D6
+00002708  DC05                    1549          ADD.B D5,D6
+0000270A  11C6 1911               1550          MOVE.B D6,destm
+0000270E                          1551          
+0000270E                          1552          *Isolate and get destination register
+0000270E  384B                    1553          MOVEA.W A3,A4
+00002710  1A14                    1554          MOVE.B (A4),D5
+00002712  E20D                    1555          LSR.B #$1,D5
+00002714  11C5 190F               1556          MOVE.B D5,dest
+00002718                          1557  
+00002718  4E75                    1558          RTS 
+0000271A                          1559        
+0000271A                          1560      END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -1259,142 +1570,174 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-ADDEXIT             1D2A
-ADDIEXIT            1A74
-ADDILP              1A44
-ADDIN1              19FA
-ADDIN2              1A0E
-ADDI_               19C8
-ADDN1               1C48
-ADDN2               1C5E
-ADDN3               1C74
-ADDN4               1C8A
-ADDN5               1CA0
-ADDN6               1CB6
-ADDN7               1CCC
-ADDREST             1CE6
-ADD_                1C1C
-AREGISTER           18AF
-BUFFER              107C
-CHECKOP             196A
-CLR                 105C
-CODE0100            19B0
-COMMA               18B5
-CONTINUE            1068
-CONVERT             18D2
-DATA                184C
+ABSILP              26AC
+ABSLLP              267A
+ABSLONG             265C
+ABSWLP              264E
+ABSWORD             2630
+ADDEXIT             1F78
+ADDIEXIT            1BD0
+ADDIN0              1B44
+ADDIN1              1B70
+ADDIN2              1B84
+ADDI_               1B1A
+ADDN1               1E9A
+ADDN2               1EB0
+ADDN3               1EC6
+ADDN4               1EDC
+ADDN5               1EF2
+ADDN6               1F08
+ADDN7               1F1E
+ADDQ1               1D34
+ADDQ2               1D48
+ADDQEXIT            1DA0
+ADDQN0              1D02
+ADDQ_               1CE4
+ADDREST             1F38
+ADD_                1E6E
+AREGISTER           19BD
+BADOP               1913
+BUFFER              112C
+CHECKOP             1A80
+CLR                 10B8
+CODE0100            1AD6
+CODE1100            1B06
+COMMA               19C3
+COMPLETE            10EA
+CONTINUE            10C4
+CONVERT             19E8
+COUNTER             1912
+CR                  D
+DATA                18FC
 DATASIZE            7D0
-DEST                1853
-DESTM               1855
-DOLLARSIGN          18B3
-DONE                103C
-DONE1               1958
-DONE2               195C
-DOTB                18B7
-DOTL                18BF
-DOTW                18BB
-DREGISTER           18AD
-EA                  22C6
-EA_000              22D8
-EA_001              22F0
-EA_010              2308
-EA_011              2330
-EA_100              2334
-EA_101              2338
-EA_110              233C
-EA_111              2340
-ERROR               18CB
-EXIT                191E
-FAKE                18FE
-FILENAME            1072
-HASHTAG             18B1
-ISOLATEREGISTERS    2344
-LEFTP               18C3
-LET                 1918
-LOOP                1938
-LOOP1               1028
-LOOP2               1040
-MBEXIT              1ACA
-MINUS               18C9
-MLEXIT              1B92
-MOVEQ_              1B94
-MOVE_B              1A76
-MOVE_L              1B30
-MOVE_W              1ACC
-MQEXIT              1C1A
-MQPNEXT             1BE6
-MWEXIT              1B2E
-N1NOP               1D3E
-N2NOP               1D4C
-N3NOP               1D5A
-NEWLINE             1922
-NOP_                1D2C
-NOT                 1906
-NOTNOP              1D7A
-NOTRTS              1DCA
-NOT_RL_SHIFT        22C4
-PADD                188C
-PADDA               1890
-PADDI               1895
-PAS                 189E
-PLEFT               18A9
-PLS                 18A1
-PLUS                18C7
-PMOVEA_L            1877
-PMOVEA_W            186E
-PMOVEQ              1880
-PMOVE_B             1856
-PMOVE_L             1866
-PMOVE_W             185E
-PNOP                1887
-PRIGHT              18A7
-PRINT               1938
-PRINTADD            1CE2
-PRINTADDA           1CDA
-PRINTDATA           195E
-PRINTML             1B5C
-PRINTMW             1AF8
-PRINTNAL            1B52
-PRINTNAW            1AEE
-PRINT_AS_A          1F20
-PRINT_AS_B          2150
-PRINT_BYTE_RL_B     21D8
-PRINT_D_RL_B        2274
-PRINT_EA_RL_A       2086
-PRINT_LONG_RL_B     21F4
-PRINT_LS_A          1F2E
-PRINT_LS_B          215E
-PRINT_L_A           1F78
-PRINT_L_B           21A8
-PRINT_MINUSPANP_RL_A  204C
-PRINT_NUMBER_RL_B   2224
-PRINT_PANPPLUS_RL_A  2012
-PRINT_PANP_RL_A     1FE2
-PRINT_RL_EA         20DA
-PRINT_RO_A          1F3C
-PRINT_RO_B          216C
-PRINT_R_A           1F6A
-PRINT_R_B           219A
-PRINT_WORD_RL_B     21E6
-PRNADDI             1A1E
-PRO                 18A4
-PRTS                189A
-R1RTS               1D8E
-R2RTS               1D9C
-R3RTS               1DAA
-RIGHTP              18C5
-RL_CHECK            1DCC
-RL_CHECK2           1E02
-RL_SHIFT            1EC2
-RL_SHIFT_A1         1F4A
-RL_SHIFT_A2         1F86
-RL_SHIFT_B          211A
-RL_SHIFT_B1         217A
-RL_SHIFT_B2         21B6
-RL_SHIFT_B3         2202
-RL_SHIFT_DONE       210E
-RTS_                1D7C
-SOURCE              1852
-SOURCEM             1854
-SPACE               18AB
+DEST                190F
+DESTM               1911
+DOLLARSIGN          19C1
+DONE                1034
+DONE1               1A6E
+DONE2               1A72
+DOTB                19C5
+DOTL                19CD
+DOTW                19C9
+DREGISTER           19BB
+EA                  2524
+EA_000              255C
+EA_001              2574
+EA_010              258C
+EA_011              25B4
+EA_100              25E2
+EA_111              2610
+EXIT                1A34
+FAKE                1A14
+FILENAME            1122
+HASHTAG             19BF
+HT                  9
+IMMEDIATE           2688
+INLPN1              109A
+INNERLOOP           1048
+INVALID             1902
+ISOLATEREGISTERS    26BE
+LEAEXIT             1FDC
+LEAPRNT             1FA4
+LEA_                1F7A
+LEFTP               19D1
+LET                 1A2E
+LF                  A
+LOOP                1A4E
+LOOP1               1020
+LOOP2               1038
+MBEXIT              1C22
+MINUS               19D7
+MLEXIT              1CE2
+MOVEM_              1E26
+MOVEQ_              1DA2
+MOVE_B              1BD2
+MOVE_L              1C84
+MOVE_W              1C24
+MQEXIT              1E24
+MQPNEXT             1DF4
+MULSEXIT            1E6C
+MULS_               1E28
+MVMEXIT             1E26
+MWEXIT              1C82
+N1NOP               1FF0
+N2NOP               1FFE
+N3NOP               200C
+NEWLINE             1A38
+NEXT0100            1B00
+NEXTPAGE            1939
+NEXTQUEST           1112
+NOP_                1FDE
+NOT                 1A1C
+NOTNOP              2028
+NOTVALID            10AC
+NOT_RL_SHIFT        2522
+PADD                199B
+PADDA               199F
+PADDI               19A4
+PADDQ               19A9
+PAS                 19D9
+PLEA                19B6
+PLEFT               19E4
+PLS                 19DC
+PLUS                19D5
+PMOVEA_L            1980
+PMOVEA_W            1977
+PMOVEM              1990
+PMOVEQ              1989
+PMOVE_B             195F
+PMOVE_L             196F
+PMOVE_W             1967
+PMULS               19AE
+PNOP                1996
+PRIGHT              19E2
+PRINT               1A4E
+PRINTADD            1F34
+PRINTADDA           1F2C
+PRINTDATA           1A74
+PRINTML             1CB0
+PRINTMW             1C50
+PRINTNAL            1CA6
+PRINTNAW            1C46
+PRINT_AS_A          217E
+PRINT_AS_B          23AE
+PRINT_BYTE_RL_B     2436
+PRINT_D_RL_B        24D2
+PRINT_EA_RL_A       22E4
+PRINT_LONG_RL_B     2452
+PRINT_LS_A          218C
+PRINT_LS_B          23BC
+PRINT_L_A           21D6
+PRINT_L_B           2406
+PRINT_MINUSPANP_RL_A  22AA
+PRINT_NUMBER_RL_B   2482
+PRINT_PANPPLUS_RL_A  2270
+PRINT_PANP_RL_A     2240
+PRINT_RL_EA         2338
+PRINT_RO_A          219A
+PRINT_RO_B          23CA
+PRINT_R_A           21C8
+PRINT_R_B           23F8
+PRINT_WORD_RL_B     2444
+PRNADDI             1B94
+PRNADDQ             1D58
+PRO                 19DF
+REPROMPT            10F0
+REQUERY             10D4
+RESTART             1914
+RIGHTP              19D3
+RL_CHECK            202A
+RL_CHECK2           2060
+RL_SHIFT            2120
+RL_SHIFT_A1         21A8
+RL_SHIFT_A2         21E4
+RL_SHIFT_B          2378
+RL_SHIFT_B1         23D8
+RL_SHIFT_B2         2414
+RL_SHIFT_B3         2460
+RL_SHIFT_DONE       236C
+SOURCE              190E
+SOURCEM             1910
+SPACE               19E6
 START               1000
+TAB                 195D
