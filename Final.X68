@@ -1026,7 +1026,8 @@ print_pAnp_rl_a     *print (An)
 	MOVE.B #$CC,D5      *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	*BRA newline
+	RTS
 
 print_pAnpplus_rl_a *print (An)+
 	LEA leftp,A1
@@ -1051,7 +1052,8 @@ print_pAnpplus_rl_a *print (An)+
 	MOVE.B #$CC,D5      *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	*BRA newline
+	RTS
 
 print_minuspAnp_rl_a    *print -(An)
 
@@ -1077,7 +1079,8 @@ print_minuspAnp_rl_a    *print -(An)
 	MOVE.B #$CC,D5      *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	*BRA newline
+	RTS
 	
 print_ea_rl_a   *print ea 
 	CMP #$2,D1
@@ -1135,13 +1138,15 @@ print_rl_ea
 	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	*BRA newline
+	RTS
 	
 rl_shift_done
 	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	*BRA newline
+	RTS
 
 rl_shift_b  *=====================PART B FOR MEMORY LOCATIONS==================
     CLR.L D4
@@ -1303,7 +1308,8 @@ print_number_rl_b   *prints #number
 	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	*BRA newline
+	RTS
 
 print_d_rl_b
 	SUBQ #1,A4	    *SHIFT gets 11->8 into D4
@@ -1343,7 +1349,8 @@ print_d_rl_b
 	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA  newline
+	*BRA  newline
+	RTS
 
 not_rl_shift
 	RTS
@@ -1558,6 +1565,7 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
 
 
 
