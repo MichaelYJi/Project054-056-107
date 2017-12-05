@@ -167,7 +167,7 @@ checkop MOVEA.W A3,A4
         BEQ ADD_
         
         CMP #$0E,D4     *1110
-        BEQ rl_shift
+        BEQ rl_check
         
         *First level jump table goes here
         RTS
@@ -536,8 +536,121 @@ notRTS  RTS
 
 *============================ASL, ASR, LSL, LSR, ROL, ROR================================
 
-rl_shift	*is it memory or register shift?
+rl_check    *for registers
+    CLR.L D4
+	ADDQ #$2,A4	*gets digits 7->4 into D4
+	MOVE.B (A4),D4
+	
+	LSR.L #2,D4	*isolates the 7->6 spot, if it == 11 branch
+	CMP #$3,D4
+    BEQ rl_check2   *branch to check2 for ea
+    
+    CLR.L D4
+	MOVE.B (A4),D4	*7->4 back into D4
+	MOVE.B #31,D7
+	LSL.L D7,D4	*isolates 4
+	LSR.L D7,D4
+	LSL.L #1,D4	*preps to get added
+	CLR.L D2
+	MOVE.B D4,D2	*stores 4 in D4
 
+	ADDQ #$1,A4	*SHIFT gets digits 3->0 into D4
+	MOVE.B (A4),D4
+	LSR.L #3,D4	*isolate 3
+	
+	ADD.B D2,D4	*gets 4->3 in D4
+	
+	CMP #$2,D4  *if 4->3 == 2, bad
+    BEQ not_rl_shift 
+    
+    BRA rl_shift
+    
+rl_check2
+    CLR.L D4
+    SUBQ #1,A4  *shift 11->8
+    MOVE.B (A4),D4  *get 11->8
+    
+    LSR.L #1,D4 *shift right to isolate 11->9
+    
+	CMP #$2,D4  *cant be 010
+    BEQ not_rl_shift
+    
+    CMP #$4,D4  cant be 100
+    BEQ not_rl_shift
+    
+    CMP #$5,D4
+    BEQ not_rl_shift 
+    
+    CMP #$6,D4
+    BEQ not_rl_shift 
+    
+    CMP #$7,D4
+    BEQ not_rl_shift
+    
+    CLR.L D4
+	ADDQ #$1,A4	*gets digits 7->4 into D4
+	MOVE.B (A4),D4
+
+    MOVE.B #30,D7
+	LSL.L D7,D4	*isolate 5->4
+	LSR.L D7,D4
+
+	LSL.L #1,D4	*prep to add 3 onto it
+	CLR.L D2
+	MOVE.L D4,D2	*store 5->4 on D2 to read
+
+	CLR.L D4
+	ADDQ #1,A4	*gets 3->0
+	MOVE.B (A4),D4
+	
+	LSR.L #3,D4	*isolate 3
+
+	ADD.L D4,D2	*add shifted spot 5->4 to spot 3, D2 = 5->3
+	
+	CMP #$0,D2
+	BEQ not_rl_shift
+	
+	CMP #$1,D2
+	BEQ not_rl_shift
+	
+	CMP #$5,D2
+	BEQ not_rl_shift
+	
+	CMP #$6,D2
+	BEQ not_rl_shift
+	
+	CMP #$2,D2
+	BEQ rl_shift
+	
+	CMP #$3,D2
+	BEQ rl_shift
+	
+	CMP #$4,D2
+	BEQ rl_shift
+	
+	*if D4 equals 111 CONTINUE
+	
+	CLR.L D4
+	*ADDQ #3,A4  *get range 3->0
+	MOVE.B (A4),D4  *load 3->0 onto D4
+	
+	CLR.L D7
+	MOVE.B #29,D7
+	LSL.L D7,D4     *isolate 2->0 on D4
+	LSR.L D7,D4
+	
+    *SUBQ #3,A4  *reset counter back to 15->12
+    
+    CMP #$0,D4
+    BEQ rl_shift
+    
+    CMP #$1,D4
+    BEQ rl_shift
+    
+    BRA not_rl_shift
+
+rl_shift	*is it memory or register shift?
+    SUBQ #3,A4  *reset counter back to 15->12
 	CLR.L D4
 	ADDQ #$2,A4	*gets digits 7->4 into D4
 	MOVE.B (A4),D4
@@ -546,7 +659,7 @@ rl_shift	*is it memory or register shift?
 	CMP #$3,D4
 	BNE rl_shift_b	*branch to part b(register)if necessary
 
-*continue with memory shift
+*continue with memory/register shift
 
 	CLR.L D4
 	SUBQ #1,A4	*gets 11->8 number
@@ -672,7 +785,7 @@ rl_shift_a2	*register shift
 	CMP #$4,D2	*if == 100, print -(An)
 	BEQ print_minuspAnp_rl_a
 
-	CMP #$7,D2	*if == 111, print ea ********************need to find a way to read the digits after opcode
+	CMP #$7,D2	*if == 111, print ea
 	BEQ print_ea_rl_a
 	
 	BRA not_rl_shift
@@ -693,7 +806,7 @@ print_pAnp_rl_a     *print (An)
 	MOVE.B #14,D0
 	TRAP #15
 
-	MOVE.B #$CC,D5
+	MOVE.B #$CC,D5      *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
 	BRA newline
@@ -718,7 +831,7 @@ print_pAnpplus_rl_a *print (An)+
 	MOVE.B #14,D0
 	TRAP #15
 
-	MOVE.B #$CC,D5
+	MOVE.B #$CC,D5      *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
 	BRA newline
@@ -744,12 +857,12 @@ print_minuspAnp_rl_a    *print -(An)
 	MOVE.B #14,D0
 	TRAP #15
 
-	MOVE.B #$CC,D5
+	MOVE.B #$CC,D5      *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
 	BRA newline
 	
-print_ea_rl_a   *print ea ********************need to find a way to read the digits after opcode
+print_ea_rl_a   *print ea 
 	CMP #$2,D1
 	BEQ not_rl_shift
 
@@ -772,14 +885,24 @@ print_ea_rl_a   *print ea ********************need to find a way to read the dig
 	MOVE.B #14,D0
 	TRAP #15
 
+    ADDQ #1,A4
+    MOVE.B (A4),D4
+    CMP $DD,A4
+    BEQ not_rl_shift
+    
+    BRA print_rl_ea
+    
+print_rl_ea
+    CLR.L D4
+    MOVE.B (A4),D4
 	CLR.L D2
 	MOVE.B #16,D2
 	CLR.L D1
-	MOVE.L D5,D1	*print extra ea from D5
+	MOVE.L D4,D1	*print extra ea from D4
 	MOVE.B #15,D0
 	TRAP #15
 
-	MOVE.B #$CC,D5
+	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
 	BRA newline
@@ -810,8 +933,6 @@ rl_shift_b  *=====================PART B FOR MEMORY LOCATIONS==================
 	BEQ print_ro_b
 
 	BRA not_rl_shift
-	
-	*stuff only goes into roooooooooooooooooooooooooooooooooooooooooooooooooooo
 	
 print_as_b      *print AS
 	LEA pas,A1
@@ -943,7 +1064,7 @@ print_number_rl_b   *prints #number
 	MOVE.B #3,D0	*print number in D1, dregister
 	TRAP #15
 
-	MOVE.B #$CC,D5
+	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
 	BRA newline
@@ -983,10 +1104,10 @@ print_d_rl_b
 	MOVE.B #3,D0	*print number in D1, dregister
 	TRAP #15
 
-	MOVE.B #$CC,D5
+	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
-	BRA newline
+	BRA  newline
 
 not_rl_shift
 	RTS
