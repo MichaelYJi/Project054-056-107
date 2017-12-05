@@ -565,7 +565,7 @@ rl_check    *for registers
     
     BRA rl_shift
     
-rl_check2
+rl_check2   *ea check
     CLR.L D4
     SUBQ #1,A4  *shift 11->8
     MOVE.B (A4),D4  *get 11->8
@@ -628,7 +628,17 @@ rl_check2
 	CMP #$4,D2
 	BEQ rl_shift
 	
-	*if D4 equals 111 CONTINUE
+	*D4 equals 111 CONTINUE
+	
+    CLR.L D4
+    ADDQ #1,A4  * spot -1 first bit after 3->0
+    MOVE.B (A4),D4
+    CMP #$FF,D4
+	BEQ not_rl_shift
+    CMP #$DD,D4
+    BEQ not_rl_shift
+    
+    SUBQ #1,A4  *gets range 3->0
 	
 	CLR.L D4
 	*ADDQ #3,A4  *get range 3->0
@@ -638,7 +648,7 @@ rl_check2
 	MOVE.B #29,D7
 	LSL.L D7,D4     *isolate 2->0 on D4
 	LSR.L D7,D4
-	
+
     *SUBQ #3,A4  *reset counter back to 15->12
     
     CMP #$0,D4
@@ -659,7 +669,7 @@ rl_shift	*is it memory or register shift?
 	CMP #$3,D4
 	BNE rl_shift_b	*branch to part b(register)if necessary
 
-*continue with memory/register shift
+*continue with ea shift
 
 	CLR.L D4
 	SUBQ #1,A4	*gets 11->8 number
@@ -885,9 +895,12 @@ print_ea_rl_a   *print ea
 	MOVE.B #14,D0
 	TRAP #15
 
+    CLR.L D4
     ADDQ #1,A4
     MOVE.B (A4),D4
-    CMP $DD,A4
+    CMP #$FF,D4
+	BEQ not_rl_shift
+    CMP #$DD,D4
     BEQ not_rl_shift
     
     BRA print_rl_ea
@@ -901,7 +914,23 @@ print_rl_ea
 	MOVE.L D4,D1	*print extra ea from D4
 	MOVE.B #15,D0
 	TRAP #15
+	
+	ADDQ #1,A4
+	MOVE.B (A4),D4
+	
+	ADDQ #1,A3
+	
+	CMP #$FF,D4
+	BEQ rl_shift_done
+	CMP #$DD,D4
+	BNE print_rl_ea
 
+	MOVE.B #$CC,D5  *DONE
+	ADDQ #4,A3
+	MOVE.B (A3),D3
+	BRA newline
+	
+rl_shift_done
 	MOVE.B #$CC,D5  *DONE
 	ADDQ #4,A3
 	MOVE.B (A3),D3
@@ -1218,6 +1247,7 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
 
 
 
