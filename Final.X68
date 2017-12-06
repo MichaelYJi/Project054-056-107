@@ -11,13 +11,16 @@ start
     MOVE.B #51,D0
     TRAP #15
     
+    *Reads entire file into buffer.
     LEA buffer,A1
     MOVE.W #datasize,D2
     MOVE.B #53,D0
     TRAP #15
     MOVEA.L A1,A3
     MOVE.B D0,D7
-     
+    
+*Runs through to the end of the buffer and converts its
+*contents to hexadecimal.     
 loop1 MOVE.B (A1),D3
       CMP #$FF,D3
       BEQ done
@@ -27,7 +30,9 @@ loop1 MOVE.B (A1),D3
 
 done CLR D3
     MOVE.B (A3)+,D3
-    
+ 
+*Loops through used part of buffer and checks all
+*opcodes contained inside of it.   
 loop2
     MOVEA.L #0,A6
     MOVE.B #11,D0
@@ -61,7 +66,7 @@ inlpn1 CMP #$CC,D5 *CC represents invalid opcode
     BRA clr
 notvalid JSR printdata 
     JSR print
-clr CMP #$DD,D3 *DD represents new line
+clr CMP #$DD,D3 *DD series represents new line
     BNE continue
     MOVE.B (A3)+,D3
     BRA clr
@@ -78,7 +83,8 @@ requery LEA nextpage,A1
     
 complete MOVE.B #56,D0
     TRAP #15
-    
+
+*Prompts user to restart or quit.    
 reprompt LEA restart,A1
     MOVE.B #18,D0
     TRAP #15
@@ -94,7 +100,7 @@ nextquest CMP #2,D1
     TRAP #15
     SIMHALT
 
-* Put variables and constants here
+*Put variables and constants here
 filename dc.b 'test1.txt', 0
 datasize equ 10000
 buffer ds.b 10000
@@ -115,6 +121,7 @@ dirparam dc.b 0
 CR EQU $0D
 LF EQU $0A
 HT EQU $09
+BS EQU $08
 restart dc.b 'Press 1 to restart or 2 to exit...',CR,LF,0
 nextpage dc.b 'Press 1 to continue simulation...',CR,LF,0
 tab dc.b '',HT,0
@@ -161,6 +168,8 @@ space dc.b ' ',0
 pjsr dc.b 'JSR ',0
 prts dc.b 'RTS',0
 
+*Converts ascii to hexadecmial and stores non-hex
+*values as DD.
 convert CMP #$FF,D3
        BEQ exit
        CMP #$30,D3
@@ -190,6 +199,8 @@ newline MOVE #$0D,D1
         TRAP #15
         RTS
 
+*Directly prints out sequential memory locations
+*until the contents contain DD, used to output data.
 print        
 loop    CMP #$DD,D3
         BEQ done1
@@ -2184,6 +2195,7 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
 
 
 
