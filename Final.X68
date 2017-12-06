@@ -7,6 +7,43 @@
     ORG    $1000
 START:          
 start
+    LEA     Display1, A1
+    MOVE.B  #13, D0         
+    TRAP    #15 
+          
+    LEA     Display2, A1    
+    TRAP    #15  
+           
+    LEA     Display3, A1     
+    TRAP    #15   
+          
+    LEA     Display4, A1    
+    TRAP    #15 
+            
+    LEA     Display5, A1 
+    TRAP    #15  
+           
+    LEA     Display6, A1     
+    TRAP    #15 
+            
+    LEA     Display7, A1     
+    TRAP    #15  
+          
+    LEA     Display8, A1
+    TRAP    #15  
+    
+    LEA     DisplayNames, A1
+    TRAP    #15
+    
+    *Ask user to continue to simulation.
+requery2 LEA nextpage,A1
+    MOVE.B #18,D0
+    TRAP #15
+    CMP #1,D1
+    BEQ startread
+    BRA requery2
+
+startread    
     LEA filename,A1
     MOVE.B #51,D0
     TRAP #15
@@ -17,7 +54,9 @@ start
     TRAP #15
     MOVEA.L A1,A3
     MOVE.B D0,D7
-     
+    
+*Runs through to the end of the buffer and converts its
+*contents to hexadecimal. 
 loop1 MOVE.B (A1),D3
       CMP #$FF,D3
       BEQ done
@@ -28,6 +67,8 @@ loop1 MOVE.B (A1),D3
 done CLR D3
     MOVE.B (A3)+,D3
     
+*Loops through used part of buffer and checks all
+*opcodes contained inside of it.   
 loop2
     MOVEA.L #0,A6
     MOVE.B #11,D0
@@ -161,6 +202,18 @@ space dc.b ' ',0
 pjsr dc.b 'JSR ',0
 prts dc.b 'RTS',0
 
+Display1  DC.B CR,' _ _ _   _ _ _ _   _ _ _ _  ',0
+Display2  DC.B CR,'|  _  | |  _ _ _| |  _ _   |',0
+Display3  DC.B CR,'| | | | | |       | |    | |',0
+Display4  DC.B CR,'| |_| | | |_ _ _  | |    | |',0
+Display5  DC.B CR,'| |_ _| | |_ _  | | |- - | |',0
+Display6  DC.B CR,'| |     | |   | | | |    | |',0
+Display7  DC.B CR,'| |     | |_ _| | | |_ _ | |',0
+Display8  DC.B CR,'|_|     |_ _ _ _| |_ _ _ _ |',0
+DisplayNames    DC.B CR,'    ALEX  |    MICHAEL  |  DAWIT  ',0
+
+*Converts ascii to hexadecmial and stores non-hex
+*values as DD.
 convert CMP #$FF,D3
        BEQ exit
        CMP #$30,D3
@@ -190,6 +243,8 @@ newline MOVE #$0D,D1
         TRAP #15
         RTS
 
+*Directly prints out sequential memory locations
+*until the contents contain DD, used to output data.
 print        
 loop    CMP #$DD,D3
         BEQ done1
@@ -2188,6 +2243,8 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
+
 
 
 
