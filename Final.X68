@@ -1289,7 +1289,7 @@ JSR_xxx
     MOVE.B D4,D1
     
     CLR.L D4
-    ADDQ #1,A4  * spot -1 first bit after 3->0
+    ADDQ #2,A4  * spot -1 first bit after 3->0
     MOVE.B (A4),D4
     CMP #$FF,D4
 	BEQ notJSR
@@ -1309,17 +1309,21 @@ JSR_xxx
     BRA notJSR
     
 JSRea
+    LEA pjsr,A1
+    MOVE.B #14,D0
+    TRAP #15
+    
     LEA dollarsign,A1
 	MOVE.B #14,D0
 	TRAP #15
 
-    CLR.L D4
-    ADDQ #1,A4  *first bite after last opcode $
-    MOVE.B (A4),D4
-    CMP #$FF,D4
-	BEQ notJSR
-    CMP #$DD,D4
-    BEQ notJSR
+    *CLR.L D4
+    *ADDQ #1,A4  *first bite after last opcode $
+    *MOVE.B (A4),D4
+    *CMP #$FF,D4
+	*BEQ notJSR
+    *CMP #$DD,D4
+    *BEQ notJSR
     
 JSRprintea
 
@@ -2184,6 +2188,7 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
 
 
 
