@@ -161,6 +161,10 @@ space dc.b ' ',0
 pjsr dc.b 'JSR ',0
 prts dc.b 'RTS',0
 
+pbcc dc.b 'BCC ',0
+pbgt  dc.b 'BGT ',0
+pble dc.b 'BLE ',0
+
 convert CMP #$FF,D3
        BEQ exit
        CMP #$30,D3
@@ -232,6 +236,9 @@ checkop MOVEA.W A3,A4
         
         CMP #$05,D4
         BEQ ADDQ_
+        
+        CMP #$06,D4
+        BEQ BXX
         
         CMP #$07,D4
         BEQ MOVEQ_
@@ -578,6 +585,90 @@ prnaddq LEA paddq,A1
         MOVE.B (A3),D3
         *JSR newline
 addqexit RTS
+
+BXX
+        CLR D4
+        ADDQ #1,A4  *STORE 11->8 
+        MOVE.B (A4),D4
+        
+        CMP #$4,D4
+        BEQ BCC_
+        
+        CMP #$E,D4
+        BEQ BGT_
+
+        CMP #$F,D4
+        BEQ BLE_
+
+        BRA notBXX
+        
+BCC_
+        LEA pbcc,A1
+        MOVE.B #14,D0
+        TRAP #15
+        BRA BXX_2
+
+BGT_
+        LEA pbgt,A1
+        MOVE.B #14,D0
+        TRAP #15
+        BRA BXX_2
+
+BLE_
+        LEA pble,A1
+        MOVE.B #14,D0
+        TRAP #15
+        BRA BXX_2
+
+BXX_2
+        ADDQ #1,A4  *STORE 7->4
+        MOVE.B (A4),D4
+        CLR.L D2
+        MOVE.B D4,D2
+        LSL.B #4,D2
+        
+        CLR.L D4
+        ADDQ #1,A4  *STORE 3->0
+        MOVE.B (A4),D4
+        ADD.B D2,D4
+        NOT.B D4    *FLIP BITS
+        ADD.B #$1,D4 *NOW 2 COMPLEMENT
+        
+        CMP #127,D4
+        BGT BXX_NEG
+        
+        LEA plus,A1
+        MOVE.B #14,D0
+        TRAP #15
+        
+        MOVE.B D4,D1
+        MOVE.B #3,D0
+        TRAP #15
+        
+        MOVE.B #$CC,D5  *DONE
+	    ADDQ #4,A3
+	    MOVE.B (A3),D3
+	    RTS
+        
+BXX_NEG    
+        LEA minus,A1
+        MOVE.B #14,D0
+        TRAP #15
+
+        CLR.L D2
+        MOVE.W #256,D2
+        SUB.L D2,D4
+        
+        MOVE.B D4,D1
+        MOVE.B #3,D0
+        TRAP #15
+        
+        MOVE.B #$CC,D5  *DONE
+	    ADDQ #4,A3
+	    MOVE.B (A3),D3
+	    RTS
+
+notBXX  RTS
 
 MOVEQ_  CLR D5
         CLR D6
@@ -2188,6 +2279,8 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
+
 
 
 
