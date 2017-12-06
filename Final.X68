@@ -5,7 +5,8 @@
 * Description:
 *-----------------------------------------------------------
     ORG    $1000
-START:          
+START:     
+    
 start
     LEA     Display1, A1
     MOVE.B  #13, D0         
@@ -156,9 +157,11 @@ dirparam dc.b 0
 CR EQU $0D
 LF EQU $0A
 HT EQU $09
+BS EQU $08
 restart dc.b 'Press 1 to restart or 2 to exit...',CR,LF,0
 nextpage dc.b 'Press 1 to continue simulation...',CR,LF,0
 tab dc.b '',HT,0
+backspace dc.b '',BS,0
 
 pmove_b dc.b 'MOVE.B ',0
 pmove_w dc.b 'MOVE.W ',0
@@ -177,6 +180,11 @@ plea dc.b 'LEA ',0
 pdivu dc.b 'DIVU.W ',0
 psub dc.b 'SUB',0
 pclr dc.b 'CLR',0
+por dc.b 'OR',0
+pand dc.b 'AND',0
+pbcc dc.b 'BCC ',0
+pbgt  dc.b 'BGT ',0
+pble dc.b 'BLE ',0
 
 dregister dc.b 'D',0
 aregister dc.b 'A',0
@@ -288,11 +296,14 @@ checkop MOVEA.W A3,A4
         CMP #$05,D4
         BEQ ADDQ_
         
+        CMP #$06,D4
+        BEQ BXX
+        
         CMP #$07,D4
         BEQ MOVEQ_
         
         CMP #$08,D4
-        BEQ DIVU_
+        BEQ code1000
         
         CMP #$09,D4
         BEQ SUB_
@@ -305,6 +316,18 @@ checkop MOVEA.W A3,A4
         
         CMP #$0E,D4
         BEQ rl_check
+
+        RTS
+        
+code1000 JSR IsolateRegisters
+        
+        *DIVU check
+        MOVE.B (destm),D5
+        CMP #$3,D5
+        BEQ DIVU_
+        
+        *Else branch to OR
+        BRA OR_
 
         RTS
         
@@ -326,10 +349,14 @@ code0100 JSR IsolateRegisters
         MOVE.B -(A4),D4 *resets to 15->12
         MOVE.B (destm),D5
         CMP #$2,D5
+        BNE n0100
+        MOVE.B (dest),D5
+        CMP #$7,D5
+        BNE n0100
         BEQ JSR_
 
         *NOP/RTS check
-        MOVEA.W A3,A4
+n0100   MOVEA.W A3,A4
         ADDQ #1,A4
         MOVE.B (A4)+,D4
         CMP #$07,D4
@@ -353,6 +380,7 @@ code1100
         BEQ MULS_
         
         *Branch to AND otherwise
+        BRA AND_
 
         RTS
         
@@ -711,9 +739,9 @@ mvmn2   MOVE.B (destm),D5
         *Store size letter
         CMP #$0,D5
         BNE mvmns1
-        MOVEA.W dotw,A5
+        LEA dotw,A5
         BRA mvmns2
-mvmns1  MOVEA.W dotl,A5
+mvmns1  LEA dotl,A5
         
         *Isolate direction
 mvmns2  MOVE.B (dest),D5
@@ -746,17 +774,19 @@ mvmn4   CMP #$7,D5
 mvmpsrt LEA pmovem,A1
         MOVE.B #14,D0
         TRAP #15
-*        LEA (A5),A1
-*        MOVE.B #14,D0
-*        TRAP #15
+        LEA (A5),A1
+        MOVE.B #14,D0
+        TRAP #15
         
         *If ea->list, print ea first
         MOVE.B (dir),D5
         CMP #$1,D5
         BNE mvmn5
+        ADDQ #$4,A3
         MOVE.B (source),D5
         MOVE.B (sourcem),D6
         JSR EA
+        SUBQ #$4,A3
         LEA comma,A1
         MOVE.B #14,D0
         TRAP #15
@@ -767,25 +797,19 @@ mvmpsrt LEA pmovem,A1
         MOVE.B #$0,mparam
         MOVE.B #$0,dirparam
         JSR D0_D3
-*        LEA slash,A1
-*        MOVE.B #14,D0
-*        TRAP #15
         ADDQ #1,A4
         MOVE.B #$4,rparam
         JSR D0_D3
-*        LEA slash,A1
-*        MOVE.B #14,D0
-*        TRAP #15
         ADDQ #1,A4
         MOVE.B #$0,rparam
         MOVE.B #$1,mparam
         JSR D0_D3
-*        LEA slash,A1
-*        MOVE.B #14,D0
-*        TRAP #15
         ADDQ #1,A4
         MOVE.B #$4,rparam
         JSR D0_D3
+        LEA backspace,A1
+        MOVE.B #14,D0
+        TRAP #15
         
         BRA mvmdone
         
@@ -796,46 +820,31 @@ mvmn5   MOVEA.W A3,A4
         MOVE.B #$1,mparam
         MOVE.B #$1,dirparam
         JSR D0_D3
-*        LEA slash,A1
-*        MOVE.B #14,D0
-*        TRAP #15
         SUBQ #1,A4
         MOVE.B #$3,rparam
         JSR D0_D3
-*        LEA slash,A1
-*        MOVE.B #14,D0
-*        TRAP #15
         SUBQ #1,A4
         MOVE.B #$7,rparam
         MOVE.B #$0,mparam
         JSR D0_D3
-*        LEA slash,A1
-*        MOVE.B #14,D0
-*        TRAP #15
         SUBQ #1,A4
         MOVE.B #$3,rparam
         JSR D0_D3
+        LEA backspace,A1
+        MOVE.B #14,D0
+        TRAP #15
         
         LEA comma,A1
         MOVE.B #14,D0
         TRAP #15
+        ADDQ #$4,A3
         MOVE.B (source),D5
         MOVE.B (sourcem),D6
         JSR EA
-
-*        *Loop through registers D0-A7
-*mvmn5   MOVEA.W A3,A4
-*        ADDQ #3,A4
-*        CLR D2
-*mvmlp1  MOVE.B (A4),D5
-*        *Shift left
-*        *Add to shift
-*        *Shift right
-*        *
-        
+        SUBQ #$4,A3
 
 mvmdone MOVE.B #$CC,D5
-        ADDQ #4,A3
+        ADDQ #8,A3
         MOVE.B (A3),D3
 mvmexit RTS
 
@@ -851,17 +860,10 @@ appdirn1 SUBQ #1,D6
 appdirexit MOVE.B D6,rparam
         RTS
 
-D0_D3   LEA slash,A1
-        MOVE.B #14,D0
-        TRAP #15
-        
-        MOVE.B (A4),D5
+D0_D3   MOVE.B (A4),D5
         LSR.B #3,D5
         CMP #1,D5
         BNE d03n1
-        LEA dregister,A1
-        MOVE.B #14,D0
-        TRAP #15
         MOVE.B mparam,D6
         MOVE.B mparam,D5
         JSR EA
@@ -1072,10 +1074,94 @@ addrest MOVE.B #14,D0
         JSR EA
 
         MOVE.B #$CC,D5
-        ADDQ #4,A3
+        ADDQ #8,A3
         MOVE.B (A3),D3
         *JSR newline
 addexit RTS
+
+BXX
+        CLR D4
+        ADDQ #1,A4  *STORE 11->8 
+        MOVE.B (A4),D4
+        
+        CMP #$4,D4
+        BEQ BCC_
+        
+        CMP #$E,D4
+        BEQ BGT_
+
+        CMP #$F,D4
+        BEQ BLE_
+
+        BRA notBXX
+        
+BCC_
+        LEA pbcc,A1
+        MOVE.B #14,D0
+        TRAP #15
+        BRA BXX_2
+
+BGT_
+        LEA pbgt,A1
+        MOVE.B #14,D0
+        TRAP #15
+        BRA BXX_2
+
+BLE_
+        LEA pble,A1
+        MOVE.B #14,D0
+        TRAP #15
+        BRA BXX_2
+
+BXX_2
+        ADDQ #1,A4  *STORE 7->4
+        MOVE.B (A4),D4
+        CLR.L D2
+        MOVE.B D4,D2
+        LSL.B #4,D2
+        
+        CLR.L D4
+        ADDQ #1,A4  *STORE 3->0
+        MOVE.B (A4),D4
+        ADD.B D2,D4
+        NOT.B D4    *FLIP BITS
+        ADD.B #$1,D4 *NOW 2 COMPLEMENT
+        
+        CMP #127,D4
+        BGT BXX_NEG
+        
+        LEA plus,A1
+        MOVE.B #14,D0
+        TRAP #15
+        
+        MOVE.B D4,D1
+        MOVE.B #3,D0
+        TRAP #15
+        
+        MOVE.B #$CC,D5  *DONE
+	    ADDQ #4,A3
+	    MOVE.B (A3),D3
+	    RTS
+        
+BXX_NEG    
+        LEA minus,A1
+        MOVE.B #14,D0
+        TRAP #15
+
+        CLR.L D2
+        MOVE.W #256,D2
+        SUB.L D2,D4
+        
+        MOVE.B D4,D1
+        MOVE.B #3,D0
+        TRAP #15
+        
+        MOVE.B #$CC,D5  *DONE
+	    ADDQ #4,A3
+	    MOVE.B (A3),D3
+	    RTS
+
+notBXX  RTS
 
 SUB_    JSR IsolateRegisters
         MOVE.B (destm),D5
@@ -1167,6 +1253,179 @@ subrest MOVE.B #14,D0
         *JSR newline
 subexit RTS
 
+OR_     *Check for valid source mode
+        MOVE.B (sourcem),D5
+        CMP #$1,D5
+        BEQ orexit
+        
+        *Dn - ea to Dn
+        MOVE.B (destm),D5
+        CMP #$0,D5
+        BNE orn1
+        LEA dotb,A5
+        MOVE.B #$0,destm
+        BRA printor
+orn1   CMP #$1,D5
+        BNE orn2
+        LEA dotw,A5
+        MOVE.B #$0,destm
+        BRA printor
+orn2   CMP #$2,D5
+        BNE orn3
+        LEA dotl,A5
+        MOVE.B #$0,destm
+        BRA printor
+        
+        *EA - Dn to EA
+orn3   CMP #$4,D5
+        BNE orn4
+        MOVE.B (sourcem),D6
+        CMP #$0,D6
+        BEQ orexit
+        CMP #$7,D6
+        BNE orcnt1
+        MOVE.B (source),D6
+        CMP #$4,D6
+        BEQ orexit
+orcnt1 LEA dotb,A5
+        MOVE.B #$0,destm
+        BRA printor
+orn4   CMP #$5,D5
+        BNE orn5
+        MOVE.B (sourcem),D6
+        CMP #$0,D6
+        BEQ orexit
+        CMP #$7,D6
+        BNE orcnt2
+        MOVE.B (source),D6
+        CMP #$4,D6
+        BEQ orexit
+orcnt2 LEA dotw,A5
+        MOVE.B #$0,destm
+        BRA printor
+orn5   CMP #$6,D5
+        BNE orexit
+        MOVE.B (sourcem),D6
+        CMP #$0,D6
+        BEQ orexit
+        CMP #$7,D6
+        BNE orcnt3
+        MOVE.B (source),D6
+        CMP #$4,D6
+        BEQ orexit
+orcnt3 LEA dotl,A5
+        MOVE.B #$0,destm 
+        
+printor LEA por,A1
+orrest MOVE.B #14,D0
+        TRAP #15
+        LEA (A5),A1
+        MOVE.B #14,D0
+        TRAP #15
+        CLR D5
+        CLR D6
+        MOVE.B (source),D5
+        MOVE.B (sourcem),D6
+        JSR EA
+        LEA comma,A1
+        MOVE.B #14,D0
+        TRAP #15
+        MOVE.B (dest),D5
+        MOVE.B (destm),D6
+        JSR EA
+
+        MOVE.B #$CC,D5
+        ADDQ #4,A3
+        MOVE.B (A3),D3
+        *JSR newline
+orexit RTS
+
+AND_   *Check for valid source mode
+        MOVE.B (sourcem),D5
+        CMP #$1,D5
+        BEQ andexit
+        
+        *Dn - ea to Dn
+        MOVE.B (destm),D5
+        CMP #$0,D5
+        BNE andn1
+        LEA dotb,A5
+        MOVE.B #$0,destm
+        BRA printand
+andn1   CMP #$1,D5
+        BNE andn2
+        LEA dotw,A5
+        MOVE.B #$0,destm
+        BRA printand
+andn2   CMP #$2,D5
+        BNE andn3
+        LEA dotl,A5
+        MOVE.B #$0,destm
+        BRA printand
+        
+        *EA - Dn to EA
+andn3   CMP #$4,D5
+        BNE andn4
+        MOVE.B (sourcem),D6
+        CMP #$0,D6
+        BEQ andexit
+        CMP #$7,D6
+        BNE andcnt1
+        MOVE.B (source),D6
+        CMP #$4,D6
+        BEQ andexit
+andcnt1 LEA dotb,A5
+        MOVE.B #$0,destm
+        BRA printand
+andn4   CMP #$5,D5
+        BNE andn5
+        MOVE.B (sourcem),D6
+        CMP #$0,D6
+        BEQ andexit
+        CMP #$7,D6
+        BNE andcnt2
+        MOVE.B (source),D6
+        CMP #$4,D6
+        BEQ andexit
+andcnt2 LEA dotw,A5
+        MOVE.B #$0,destm
+        BRA printand
+andn5   CMP #$6,D5
+        BNE andexit
+        MOVE.B (sourcem),D6
+        CMP #$0,D6
+        BEQ andexit
+        CMP #$7,D6
+        BNE andcnt3
+        MOVE.B (source),D6
+        CMP #$4,D6
+        BEQ andexit
+andcnt3 LEA dotl,A5
+        MOVE.B #$0,destm 
+        
+printand LEA pand,A1
+andrest MOVE.B #14,D0
+        TRAP #15
+        LEA (A5),A1
+        MOVE.B #14,D0
+        TRAP #15
+        CLR D5
+        CLR D6
+        MOVE.B (source),D5
+        MOVE.B (sourcem),D6
+        JSR EA
+        LEA comma,A1
+        MOVE.B #14,D0
+        TRAP #15
+        MOVE.B (dest),D5
+        MOVE.B (destm),D6
+        JSR EA
+
+        MOVE.B #$CC,D5
+        ADDQ #4,A3
+        MOVE.B (A3),D3
+        *JSR newline
+andexit RTS
 
 LEA_    *Check for valid source mode
         CLR D5
@@ -2243,6 +2502,9 @@ IsolateRegisters
         RTS 
       
     END    START        ; last line of source
+
+
+
 
 
 
